@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Clip Search</title>
+
+    <link rel="icon" type="image/png" href="/static/scenesearch.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Indic Transliteration -->
+    <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.3.0/sanscript.min.js"></script>
+
+    <style>
+        :root {
+            --main-bg: #181a20;
+            --accent: #c08401;
+            --accent2: #2e2a23;
+            --text-main: #f5f3ee;
+            --text-muted: #b8b6b0;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(120deg, var(--main-bg) 60%, var(--accent2) 100%);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .header {
+            background: var(--main-bg);
+            padding: 1.5em 2em;
+            display: flex;
+            align-items: center;
+            gap: 2em;
+            box-shadow: 0 2px 16px #000a;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        .search-bar {
+            flex: 1;
+            display: flex;
+            gap: 0.6em;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.8em 1.2em;
+            border-radius: 32px;
+            border: none;
+            background: var(--accent2);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            outline: none;
+            font-family: 'Noto Sans Telugu', 'Roboto', sans-serif;
+        }
+
+        #langToggle {
+            padding: 0.7em 1.4em;
+            border-radius: 24px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #langToggle.active {
+            background: #2fa36a;
+        }
+
+        .clip-list {
+            max-width: 1000px;
+            margin: 2em auto;
+            background: rgba(24,26,32,0.85);
+            border-radius: 18px;
+            box-shadow: 0 4px 32px #000a;
+            padding: 2em;
+        }
+
+        .clip-item {
+            display: flex;
+            gap: 2em;
+            padding: 1.5em 0;
+            border-bottom: 1px solid rgba(192,132,1,0.08);
+        }
+
+        .clip-item:last-child {
+            border-bottom: none;
+        }
+
+        .clip-thumb {
+            width: 160px;
+            height: 90px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 2px 12px #0007;
+        }
+
+        .clip-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .clip-meta {
+            color: var(--text-muted);
+            margin: 0.4em 0;
+        }
+
+        .clip-desc {
+            margin-bottom: 0.6em;
+        }
+
+        .clip-action {
+            background: linear-gradient(90deg, var(--accent), #a06c00);
+            border: none;
+            color: white;
+            padding: 0.6em 1.5em;
+            border-radius: 32px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">SCENE</div>
+
+    <div class="search-bar">
+        <input id="searchInput" type="text" placeholder="Search video clips..." />
+        <button id="langToggle">EN → తెలుగు</button>
+    </div>
+</div>
+
+<div class="clip-list" id="clipList">
+    <div class="clip-item">
+        <img class="clip-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80">
+        <div>
+            <div class="clip-title">Clip Title</div>
+            <div class="clip-meta">Duration: 00:23 | 1920x1080</div>
+            <div class="clip-desc">Short description of the video clip.</div>
+            <button class="clip-action">Preview</button>
+        </div>
+    </div>
+
+    <div class="clip-item">
+        <img class="clip-thumb" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=400&q=80">
+        <div>
+            <div class="clip-title">Clip Title</div>
+            <div class="clip-meta">Duration: 01:12 | 1280x720</div>
+            <div class="clip-desc">Short description of the video clip.</div>
+            <button class="clip-action">Preview</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById("searchInput");
+    const toggle = document.getElementById("langToggle");
+
+    let teluguEnabled = false;
+
+    toggle.addEventListener("click", () => {
+        teluguEnabled = !teluguEnabled;
+        toggle.classList.toggle("active", teluguEnabled);
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (!teluguEnabled) return;
+
+        // Only transliterate on SPACE — NOT Enter
+        if (e.key === " ") {
+            const words = input.value.split(/\s+/);
+            const lastIndex = words.length - 1;
+            const lastWord = words[lastIndex];
+
+            if (/^[a-zA-Z]+$/.test(lastWord)) {
+                words[lastIndex] = Sanscript.t(lastWord, "itrans", "telugu");
+                input.value = words.join(" ");
+            }
+        }
+    });
+
+    // ENTER = SEARCH
+    input.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+            const query = input.value.trim();
+            console.log("SEARCH:", query);
+            // Hook your actual search logic here
+        }
+    });
+</script>
+
+</body>
+</html>
