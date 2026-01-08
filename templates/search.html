@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Clip Search</title>
 
-    <link rel="icon" type="image/png" href="/static/scenesearch.png">
+    <link rel="icon" type="image/png" href="/static/scene-search.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Indic Transliteration -->
@@ -42,6 +42,10 @@
             font-size: 2rem;
             color: var(--accent);
             font-weight: 900;
+        }
+        .logo a {
+            color: inherit;
+            text-decoration: none;
         }
 
         .search-bar {
@@ -137,7 +141,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">SCENE</div>
+    <div class="logo"><a href="{{ url_for('home') }}">SCENE</a></div>
 
     <div class="search-bar">
         <input id="searchInput" type="text" placeholder="Search video clips..." />

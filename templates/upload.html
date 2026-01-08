@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SceneSummary – Clip Summarizer</title>
+
+    <link rel="icon" type="image/png" href="/static/scene-search.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --main-bg: #181a20;
+            --accent: #c08401;
+            --accent2: #2e2a23;
+            --text-main: #f5f3ee;
+            --text-muted: #b8b6b0;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(120deg, var(--main-bg) 60%, var(--accent2) 100%);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .header {
+            background: var(--main-bg);
+            padding: 1.5em 2em;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 16px #000a;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2.5em auto;
+            padding: 2em;
+            background: rgba(24,26,32,0.9);
+            border-radius: 18px;
+            box-shadow: 0 4px 32px #000a;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 1.5em;
+        }
+
+        /* Upload view */
+        .upload-box {
+            border: 2px dashed rgba(192,132,1,0.4);
+            border-radius: 18px;
+            padding: 3em;
+            text-align: center;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 0.9em 2em;
+            border-radius: 32px;
+            background: linear-gradient(90deg, var(--accent), #a06c00);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 1em;
+            color: var(--text-muted);
+        }
+
+        .actions {
+            margin-top: 2em;
+            text-align: right;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--accent), #a06c00);
+            border: none;
+            color: white;
+            padding: 0.8em 2.2em;
+            border-radius: 32px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Result view */
+        .result {
+            display: flex;
+            gap: 2em;
+            align-items: flex-start;
+        }
+
+        .thumb {
+            width: 260px;
+            height: 150px;
+            background: #000;
+            border-radius: 14px;
+            object-fit: cover;
+            box-shadow: 0 4px 20px #000a;
+        }
+
+        .result-content {
+            flex: 1;
+        }
+
+        .editable {
+            width: 100%;
+            background: var(--accent2);
+            border: none;
+            border-radius: 12px;
+            padding: 0.8em 1em;
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 1em;
+            outline: none;
+        }
+
+        .title-input {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        textarea.editable {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            gap: 0.5em;
+            flex-wrap: wrap;
+            margin-bottom: 1.5em;
+        }
+
+        .tag {
+            background: rgba(192,132,1,0.15);
+            color: var(--accent);
+            padding: 0.4em 0.8em;
+            border-radius: 18px;
+            font-size: 0.9rem;
+        }
+
+        .tag-input {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            outline: none;
+        }
+
+        .save-btn {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">SCENE</div>
+</div>
+
+<div class="container">
+    <h1>Scene Summary</h1>
+
+    <!-- Upload View -->
+    <div id="uploadView">
+        <div class="upload-box">
+            <label class="upload-label" for="videoFile">
+                Upload Video Clip
+            </label>
+            <input type="file" id="videoFile" accept="video/*">
+            <div class="file-name" id="fileName"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" id="generateBtn" disabled>
+                Generate Summary
+            </button>
+        </div>
+    </div>
+
+    <!-- Result View -->
+    <div id="resultView" style="display:none;">
+        <div class="result">
+            <video class="thumb" id="videoPreview" controls></video>
+
+            <div class="result-content">
+                <input class="editable title-input" id="titleInput">
+
+                <textarea class="editable" id="summaryInput"></textarea>
+
+                <div class="tags" id="tagContainer">
+                    <input class="tag-input" id="tagInput" placeholder="+ add tag">
+                </div>
+
+                <div class="actions">
+                    <button class="btn save-btn" id="saveBtn">
+                        Save Clip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById("videoFile");
+    const fileNameDisplay = document.getElementById("fileName");
+    const generateBtn = document.getElementById("generateBtn");
+    const uploadView = document.getElementById("uploadView");
+    const resultView = document.getElementById("resultView");
+    const videoPreview = document.getElementById("videoPreview");
+    const titleInput = document.getElementById("titleInput");
+    const summaryInput = document.getElementById("summaryInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const tagInput = document.getElementById("tagInput");
+    const tagContainer = document.getElementById("tagContainer");
+
+    // Enable generate button once file is selected
+    fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+        const file = fileInput.files[0];
+        fileNameDisplay.textContent = `Selected: ${file.name}`;
+        generateBtn.disabled = false;
+    });
+
+    generateBtn.addEventListener("click", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        videoPreview.src = URL.createObjectURL(file);
+        videoPreview.load();
+
+        // Placeholder AI output
+        titleInput.value = "A Moment of Escalating Tension";
+        summaryInput.value =
+            "This clip captures a transitional moment where visual pacing and framing subtly signal an impending shift. " +
+            "Character positioning and silence heighten anticipation, making the scene function as a narrative pressure point.";
+
+        uploadView.style.display = "none";
+        resultView.style.display = "block";
+        saveBtn.style.display = "inline-block";
+    });
+
+    // Tag input
+    tagInput.addEventListener("keydown", e => {
+        if (e.key === "Enter" && tagInput.value.trim()) {
+            e.preventDefault();
+            const tag = document.createElement("div");
+            tag.className = "tag";
+            tag.textContent = tagInput.value.trim();
+            tagContainer.insertBefore(tag, tagInput);
+            tagInput.value = "";
+        }
+    });
+</script>
+
+</body>
+</html>
