@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SceneSummary – Clip Summarizer</title>
+    <title>Scene-Search</title>
 
     <link rel="icon" type="image/png" href="/static/scene-search.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -40,6 +40,11 @@
             font-weight: 900;
         }
 
+        .logo a {
+            color: inherit;
+            text-decoration: none;
+        }
+
         .container {
             max-width: 1000px;
             margin: 2.5em auto;
@@ -56,7 +61,6 @@
             margin-bottom: 1.5em;
         }
 
-        /* Upload view */
         .upload-box {
             border: 2px dashed rgba(192,132,1,0.4);
             border-radius: 18px;
@@ -106,7 +110,6 @@
             cursor: not-allowed;
         }
 
-        /* Result view */
         .result {
             display: flex;
             gap: 2em;
@@ -151,7 +154,6 @@
             line-height: 1.5;
         }
 
-        /* Tags */
         .tags {
             display: flex;
             gap: 0.5em;
@@ -162,9 +164,22 @@
         .tag {
             background: rgba(192,132,1,0.15);
             color: var(--accent);
-            padding: 0.4em 0.8em;
+            padding: 0.35em 0.6em 0.35em 0.8em;
             border-radius: 18px;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            color: rgba(192,132,1,0.7);
+        }
+
+        .tag-remove:hover {
+            color: #ffb300;
         }
 
         .tag-input {
@@ -172,6 +187,7 @@
             background: transparent;
             color: var(--text-muted);
             outline: none;
+            min-width: 120px;
         }
 
         .save-btn {
@@ -183,48 +199,39 @@
 <body>
 
 <div class="header">
-    <div class="logo">SCENE</div>
+    <div class="logo"><a href="{{ url_for('home') }}">SCENE SEARCH</a></div>
 </div>
 
 <div class="container">
     <h1>Scene Summary</h1>
 
-    <!-- Upload View -->
     <div id="uploadView">
         <div class="upload-box">
-            <label class="upload-label" for="videoFile">
-                Upload Video Clip
-            </label>
+            <label class="upload-label" for="videoFile">Upload Video Clip</label>
             <input type="file" id="videoFile" accept="video/*">
             <div class="file-name" id="fileName"></div>
         </div>
 
         <div class="actions">
-            <button class="btn" id="generateBtn" disabled>
-                Generate Summary
-            </button>
+            <button class="btn" id="generateBtn" disabled>Generate Summary</button>
         </div>
     </div>
 
-    <!-- Result View -->
     <div id="resultView" style="display:none;">
         <div class="result">
             <video class="thumb" id="videoPreview" controls></video>
-
             <div class="result-content">
-                <input class="editable title-input" id="titleInput">
-
-                <textarea class="editable" id="summaryInput"></textarea>
-
-                <div class="tags" id="tagContainer">
-                    <input class="tag-input" id="tagInput" placeholder="+ add tag">
-                </div>
-
-                <div class="actions">
-                    <button class="btn save-btn" id="saveBtn">
-                        Save Clip
-                    </button>
-                </div>
+                <form id="saveForm">
+                    <input class="editable title-input" id="titleInput" name="title" required>
+                    <textarea class="editable" id="summaryInput" name="description"></textarea>
+                    <div class="tags" id="tagContainer">
+                        <input class="tag-input" id="tagInput" placeholder="+ add tag">
+                    </div>
+                    <input type="hidden" name="tags" id="tagsHidden">
+                    <div class="actions">
+                        <button class="btn save-btn" id="saveBtn" type="submit">Save Clip</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -243,11 +250,9 @@
     const tagInput = document.getElementById("tagInput");
     const tagContainer = document.getElementById("tagContainer");
 
-    // Enable generate button once file is selected
     fileInput.addEventListener("change", () => {
         if (!fileInput.files.length) return;
-        const file = fileInput.files[0];
-        fileNameDisplay.textContent = `Selected: ${file.name}`;
+        fileNameDisplay.textContent = `Selected: ${fileInput.files[0].name}`;
         generateBtn.disabled = false;
     });
 
@@ -258,27 +263,70 @@
         videoPreview.src = URL.createObjectURL(file);
         videoPreview.load();
 
-        // Placeholder AI output
         titleInput.value = "A Moment of Escalating Tension";
         summaryInput.value =
-            "This clip captures a transitional moment where visual pacing and framing subtly signal an impending shift. " +
-            "Character positioning and silence heighten anticipation, making the scene function as a narrative pressure point.";
+            "This clip captures a transitional moment where visual pacing and framing subtly signal an impending shift.";
 
         uploadView.style.display = "none";
         resultView.style.display = "block";
         saveBtn.style.display = "inline-block";
     });
 
-    // Tag input
     tagInput.addEventListener("keydown", e => {
+        // Add tag on Enter
         if (e.key === "Enter" && tagInput.value.trim()) {
             e.preventDefault();
-            const tag = document.createElement("div");
-            tag.className = "tag";
-            tag.textContent = tagInput.value.trim();
-            tagContainer.insertBefore(tag, tagInput);
+            addTag(tagInput.value.trim());
             tagInput.value = "";
         }
+
+        // Remove last tag on Backspace when input is empty
+        if (e.key === "Backspace" && tagInput.value === "") {
+            const tags = tagContainer.querySelectorAll(".tag");
+            if (tags.length) {
+                tags[tags.length - 1].remove();
+            }
+        }
+    });
+
+    function addTag(text) {
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.innerHTML = `
+            <span>${text}</span>
+            <span class="tag-remove">&times;</span>
+        `;
+        tag.querySelector(".tag-remove").onclick = () => tag.remove();
+        tagContainer.insertBefore(tag, tagInput);
+    }
+
+    // Gather tags as comma-separated string
+    function getTags() {
+        const tags = [];
+        tagContainer.querySelectorAll(".tag span:first-child").forEach(span => {
+            tags.push(span.textContent);
+        });
+        return tags.join(",");
+    }
+
+    // Handle form submission
+    document.getElementById("saveForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        document.getElementById("tagsHidden").value = getTags();
+        const formData = new FormData(this);
+        fetch("/upload", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                alert(data.message || "Saved!");
+            }
+        })
+        .catch(() => alert("Error saving clip."));
     });
 </script>
 

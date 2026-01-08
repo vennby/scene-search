@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Clip Search</title>
+    <title>Scene-Search</title>
 
     <link rel="icon" type="image/png" href="/static/scene-search.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&display=swap" rel="stylesheet">
@@ -141,7 +141,7 @@
 <body>
 
 <div class="header">
-    <div class="logo"><a href="{{ url_for('home') }}">SCENE</a></div>
+    <div class="logo"><a href="{{ url_for('home') }}">SCENE SEARCH</a></div>
 
     <div class="search-bar">
         <input id="searchInput" type="text" placeholder="Search video clips..." />
@@ -150,25 +150,22 @@
 </div>
 
 <div class="clip-list" id="clipList">
-    <div class="clip-item">
-        <img class="clip-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80">
-        <div>
-            <div class="clip-title">Clip Title</div>
-            <div class="clip-meta">Duration: 00:23 | 1920x1080</div>
-            <div class="clip-desc">Short description of the video clip.</div>
-            <button class="clip-action">Preview</button>
+    {% if clips %}
+        {% for clip in clips %}
+        <div class="clip-item">
+            <img class="clip-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80">
+            <div>
+                <div class="clip-title">{{ clip.title }}</div>
+                <div class="clip-meta">Saved: {{ clip.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                <div class="clip-desc">{{ clip.description }}</div>
+                <div class="clip-meta">Tags: {{ clip.tags }}</div>
+                <button class="clip-action">Preview</button>
+            </div>
         </div>
-    </div>
-
-    <div class="clip-item">
-        <img class="clip-thumb" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=400&q=80">
-        <div>
-            <div class="clip-title">Clip Title</div>
-            <div class="clip-meta">Duration: 01:12 | 1280x720</div>
-            <div class="clip-desc">Short description of the video clip.</div>
-            <button class="clip-action">Preview</button>
-        </div>
-    </div>
+        {% endfor %}
+    {% else %}
+        <div style="color: #b8b6b0; text-align: center;">No video clips found.</div>
+    {% endif %}
 </div>
 
 <script>

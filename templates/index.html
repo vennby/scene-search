@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SceneSearch – The Filmmaker’s Tool</title>
+<title>Scene-Search</title>
 <link rel="icon" type="image/png" href="/static/scene-search.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
@@ -168,6 +168,7 @@ body {
         0 0 0 1px rgba(255,255,255,0.05),
         0 15px 45px var(--gold-soft);
     transition: all 0.35s ease;
+    margin: 0 1rem;
 }
 
 .cta:hover {
@@ -218,6 +219,7 @@ body {
             instantly. Built for filmmakers who think visually.
         </p>
         <a href="{{ url_for('search') }}" class="cta">Enter the Archive</a>
+        <a href="{{ url_for('upload') }}" class="cta">Add to the Archive</a>
     </div>
 </section>
 </body>
