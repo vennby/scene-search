@@ -1,295 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scene-Search</title>
 
-    <link rel="icon" type="image/png" href="/static/scene-search.png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/scene-search.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
-        :root {
-            --main-bg: #181a20;
-            --accent: #c08401;
-            --accent2: #2e2a23;
-            --text-main: #f5f3ee;
-            --text-muted: #b8b6b0;
-        }
+      :root {
+        --main-bg: #181a20;
+        --accent: #c08401;
+        --accent2: #2e2a23;
+        --text-main: #f5f3ee;
+        --text-muted: #b8b6b0;
+      }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(120deg, var(--main-bg) 60%, var(--accent2) 100%);
-            color: var(--text-main);
-            font-family: 'Roboto', sans-serif;
-        }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(
+          120deg,
+          var(--main-bg) 60%,
+          var(--accent2) 100%
+        );
+        color: var(--text-main);
+        font-family: "Roboto", sans-serif;
+      }
 
-        .header {
-            background: var(--main-bg);
-            padding: 1.5em 2em;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 16px #000a;
-        }
+      .header {
+        background: var(--main-bg);
+        padding: 1.5em 2em;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 16px #000a;
+      }
 
-        .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2rem;
-            color: var(--accent);
-            font-weight: 900;
-        }
+      .logo {
+        font-family: "Montserrat", sans-serif;
+        font-size: 2rem;
+        color: var(--accent);
+        font-weight: 900;
+      }
 
-        .logo a {
-            color: inherit;
-            text-decoration: none;
-        }
+      .logo a {
+        color: inherit;
+        text-decoration: none;
+      }
 
-        .container {
-            max-width: 1000px;
-            margin: 2.5em auto;
-            padding: 2em;
-            background: rgba(24,26,32,0.9);
-            border-radius: 18px;
-            box-shadow: 0 4px 32px #000a;
-        }
+      .container {
+        max-width: 1000px;
+        margin: 2.5em auto;
+        padding: 2em;
+        background: rgba(24, 26, 32, 0.9);
+        border-radius: 18px;
+        box-shadow: 0 4px 32px #000a;
+      }
 
-        h1 {
-            font-family: 'Montserrat', sans-serif;
-            color: var(--accent);
-            font-size: 2rem;
-            margin-bottom: 1.5em;
-        }
+      h1 {
+        font-family: "Montserrat", sans-serif;
+        color: var(--accent);
+        font-size: 2rem;
+        margin-bottom: 1.5em;
+      }
 
-        .upload-box {
-            border: 2px dashed rgba(192,132,1,0.4);
-            border-radius: 18px;
-            padding: 3em;
-            text-align: center;
-        }
+      .upload-box {
+        border: 2px dashed rgba(192, 132, 1, 0.4);
+        border-radius: 18px;
+        padding: 3em;
+        text-align: center;
+      }
 
-        .upload-label {
-            display: inline-block;
-            padding: 0.9em 2em;
-            border-radius: 32px;
-            background: linear-gradient(90deg, var(--accent), #a06c00);
-            color: white;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-        }
+      .upload-label {
+        display: inline-block;
+        padding: 0.9em 2em;
+        border-radius: 32px;
+        background: linear-gradient(90deg, var(--accent), #a06c00);
+        color: white;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+      }
 
-        input[type="file"] {
-            display: none;
-        }
+      input[type="file"] {
+        display: none;
+      }
 
-        .file-name {
-            margin-top: 1em;
-            color: var(--text-muted);
-        }
+      .file-name {
+        margin-top: 1em;
+        color: var(--text-muted);
+      }
 
-        .actions {
-            margin-top: 2em;
-            text-align: right;
-        }
+      .actions {
+        margin-top: 2em;
+        text-align: right;
+      }
 
-        .btn {
-            background: linear-gradient(90deg, var(--accent), #a06c00);
-            border: none;
-            color: white;
-            padding: 0.8em 2.2em;
-            border-radius: 32px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-        }
+      .btn {
+        background: linear-gradient(90deg, var(--accent), #a06c00);
+        border: none;
+        color: white;
+        padding: 0.8em 2.2em;
+        border-radius: 32px;
+        cursor: pointer;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+      }
 
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
 
-        .result {
-            display: flex;
-            gap: 2em;
-            align-items: flex-start;
-        }
+      .result {
+        display: flex;
+        gap: 2em;
+        align-items: flex-start;
+      }
 
-        .thumb {
-            width: 260px;
-            height: 150px;
-            background: #000;
-            border-radius: 14px;
-            object-fit: cover;
-            box-shadow: 0 4px 20px #000a;
-        }
+      .thumb {
+        width: 260px;
+        height: 150px;
+        background: #000;
+        border-radius: 14px;
+        object-fit: cover;
+        box-shadow: 0 4px 20px #000a;
+      }
 
-        .result-content {
-            flex: 1;
-        }
+      .result-content {
+        flex: 1;
+      }
 
-        .editable {
-            width: 100%;
-            background: var(--accent2);
-            border: none;
-            border-radius: 12px;
-            padding: 0.8em 1em;
-            color: var(--text-main);
-            font-size: 1rem;
-            margin-bottom: 1em;
-            outline: none;
-        }
+      .editable {
+        width: 100%;
+        background: var(--accent2);
+        border: none;
+        border-radius: 12px;
+        padding: 0.8em 1em;
+        color: var(--text-main);
+        font-size: 1rem;
+        margin-bottom: 1em;
+        outline: none;
+      }
 
-        .title-input {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.4rem;
-            color: var(--accent);
-            font-weight: 700;
-        }
+      .title-input {
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.4rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
 
-        textarea.editable {
-            min-height: 100px;
-            resize: vertical;
-            line-height: 1.5;
-        }
+      textarea.editable {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.5;
+      }
 
-        .tags {
-            display: flex;
-            gap: 0.5em;
-            flex-wrap: wrap;
-            margin-bottom: 1.5em;
-        }
+      .tags {
+        display: flex;
+        gap: 0.5em;
+        flex-wrap: wrap;
+        margin-bottom: 1.5em;
+      }
 
-        .tag {
-            background: rgba(192,132,1,0.15);
-            color: var(--accent);
-            padding: 0.35em 0.6em 0.35em 0.8em;
-            border-radius: 18px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4em;
-        }
+      .tag {
+        background: rgba(192, 132, 1, 0.15);
+        color: var(--accent);
+        padding: 0.35em 0.6em 0.35em 0.8em;
+        border-radius: 18px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+      }
 
-        .tag-remove {
-            cursor: pointer;
-            font-weight: bold;
-            color: rgba(192,132,1,0.7);
-        }
+      .tag-remove {
+        cursor: pointer;
+        font-weight: bold;
+        color: rgba(192, 132, 1, 0.7);
+      }
 
-        .tag-remove:hover {
-            color: #ffb300;
-        }
+      .tag-remove:hover {
+        color: #ffb300;
+      }
 
-        .tag-input {
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            outline: none;
-            min-width: 120px;
-        }
+      .tag-input {
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        outline: none;
+        min-width: 120px;
+      }
 
-        .save-btn {
-            display: none;
-        }
+      .save-btn {
+        display: none;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="header">
+      <div class="logo"><a href="{{ url_for('home') }}">SCENE SEARCH</a></div>
+    </div>
 
-<div class="header">
-    <div class="logo"><a href="{{ url_for('home') }}">SCENE SEARCH</a></div>
-</div>
+    <div class="container">
+      <h1>Scene Summary</h1>
 
-<div class="container">
-    <h1>Scene Summary</h1>
-
-    <div id="uploadView">
+      <div id="uploadView">
         <div class="upload-box">
-            <label class="upload-label" for="videoFile">Upload Video Clip</label>
-            <input type="file" id="videoFile" accept="video/*">
-            <div class="file-name" id="fileName"></div>
+          <label class="upload-label" for="videoFile">Upload Video Clip</label>
+          <input type="file" id="videoFile" accept="video/*" />
+          <div class="file-name" id="fileName"></div>
         </div>
 
         <div class="actions">
-            <button class="btn" id="generateBtn" disabled>Generate Summary</button>
+          <button class="btn" id="generateBtn" disabled>
+            Generate Summary
+          </button>
         </div>
-    </div>
+      </div>
 
-    <div id="resultView" style="display:none;">
+      <div id="resultView" style="display: none">
         <div class="result">
-            <video class="thumb" id="videoPreview" controls></video>
-            <div class="result-content">
-                <form id="saveForm">
-                    <input class="editable title-input" id="titleInput" name="title" required>
-                    <textarea class="editable" id="summaryInput" name="description"></textarea>
-                    <div class="tags" id="tagContainer">
-                        <input class="tag-input" id="tagInput" placeholder="+ add tag">
-                    </div>
-                    <input type="hidden" name="tags" id="tagsHidden">
-                    <div class="actions">
-                        <button class="btn save-btn" id="saveBtn" type="submit">Save Clip</button>
-                    </div>
-                </form>
-            </div>
+          <video class="thumb" id="videoPreview" controls></video>
+          <div class="result-content">
+            <form id="saveForm">
+              <input
+                class="editable title-input"
+                id="titleInput"
+                name="title"
+                required
+              />
+              <textarea
+                class="editable"
+                id="summaryInput"
+                name="description"
+              ></textarea>
+              <div class="tags" id="tagContainer">
+                <input
+                  class="tag-input"
+                  id="tagInput"
+                  placeholder="+ add tag"
+                />
+              </div>
+              <input type="hidden" name="tags" id="tagsHidden" />
+              <div class="actions">
+                <button class="btn save-btn" id="saveBtn" type="submit">
+                  Save Clip
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<script>
-    const fileInput = document.getElementById("videoFile");
-    const fileNameDisplay = document.getElementById("fileName");
-    const generateBtn = document.getElementById("generateBtn");
-    const uploadView = document.getElementById("uploadView");
-    const resultView = document.getElementById("resultView");
-    const videoPreview = document.getElementById("videoPreview");
-    const titleInput = document.getElementById("titleInput");
-    const summaryInput = document.getElementById("summaryInput");
-    const saveBtn = document.getElementById("saveBtn");
-    const tagInput = document.getElementById("tagInput");
-    const tagContainer = document.getElementById("tagContainer");
+    <script>
+      const fileInput = document.getElementById("videoFile");
+      const fileNameDisplay = document.getElementById("fileName");
+      const generateBtn = document.getElementById("generateBtn");
+      const uploadView = document.getElementById("uploadView");
+      const resultView = document.getElementById("resultView");
+      const videoPreview = document.getElementById("videoPreview");
+      const titleInput = document.getElementById("titleInput");
+      const summaryInput = document.getElementById("summaryInput");
+      const saveBtn = document.getElementById("saveBtn");
+      const tagInput = document.getElementById("tagInput");
+      const tagContainer = document.getElementById("tagContainer");
 
-    fileInput.addEventListener("change", () => {
+      fileInput.addEventListener("change", () => {
         if (!fileInput.files.length) return;
         fileNameDisplay.textContent = `Selected: ${fileInput.files[0].name}`;
         generateBtn.disabled = false;
-    });
+      });
 
-    generateBtn.addEventListener("click", () => {
+      generateBtn.addEventListener("click", async () => {
         const file = fileInput.files[0];
         if (!file) return;
 
+        generateBtn.disabled = true;
+        generateBtn.textContent = "Analyzing...";
+
+        // Preview video immediately
         videoPreview.src = URL.createObjectURL(file);
         videoPreview.load();
 
-        titleInput.value = "A Moment of Escalating Tension";
-        summaryInput.value =
-            "This clip captures a transitional moment where visual pacing and framing subtly signal an impending shift.";
+        const formData = new FormData();
+        formData.append("video", file);
 
-        uploadView.style.display = "none";
-        resultView.style.display = "block";
-        saveBtn.style.display = "inline-block";
-    });
+        try {
+          const res = await fetch("/analyze", {
+            method: "POST",
+            body: formData,
+          });
 
-    tagInput.addEventListener("keydown", e => {
+          if (!res.ok) throw new Error("Analysis failed");
+
+          const data = await res.json();
+
+          // 🔥 Populate real backend output
+          titleInput.value = data.title || "";
+          summaryInput.value = data.summary || "";
+
+          // Clear old tags
+          tagContainer.querySelectorAll(".tag").forEach((t) => t.remove());
+
+          if (Array.isArray(data.tags)) {
+            data.tags.forEach((tag) => addTag(tag));
+          }
+
+          uploadView.style.display = "none";
+          resultView.style.display = "block";
+          saveBtn.style.display = "inline-block";
+        } catch (err) {
+          alert("Failed to analyze video.");
+          console.error(err);
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.textContent = "Generate Summary";
+        }
+      });
+
+      tagInput.addEventListener("keydown", (e) => {
         // Add tag on Enter
         if (e.key === "Enter" && tagInput.value.trim()) {
-            e.preventDefault();
-            addTag(tagInput.value.trim());
-            tagInput.value = "";
+          e.preventDefault();
+          addTag(tagInput.value.trim());
+          tagInput.value = "";
         }
 
         // Remove last tag on Backspace when input is empty
         if (e.key === "Backspace" && tagInput.value === "") {
-            const tags = tagContainer.querySelectorAll(".tag");
-            if (tags.length) {
-                tags[tags.length - 1].remove();
-            }
+          const tags = tagContainer.querySelectorAll(".tag");
+          if (tags.length) {
+            tags[tags.length - 1].remove();
+          }
         }
-    });
+      });
 
-    function addTag(text) {
+      function addTag(text) {
         const tag = document.createElement("div");
         tag.className = "tag";
         tag.innerHTML = `
@@ -298,37 +352,40 @@
         `;
         tag.querySelector(".tag-remove").onclick = () => tag.remove();
         tagContainer.insertBefore(tag, tagInput);
-    }
+      }
 
-    // Gather tags as comma-separated string
-    function getTags() {
+      // Gather tags as comma-separated string
+      function getTags() {
         const tags = [];
-        tagContainer.querySelectorAll(".tag span:first-child").forEach(span => {
+        tagContainer
+          .querySelectorAll(".tag span:first-child")
+          .forEach((span) => {
             tags.push(span.textContent);
-        });
+          });
         return tags.join(",");
-    }
+      }
 
-    // Handle form submission
-    document.getElementById("saveForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        document.getElementById("tagsHidden").value = getTags();
-        const formData = new FormData(this);
-        fetch("/upload", {
+      // Handle form submission
+      document
+        .getElementById("saveForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          document.getElementById("tagsHidden").value = getTags();
+          const formData = new FormData(this);
+          fetch("/upload", {
             method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.redirect) {
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.redirect) {
                 window.location.href = data.redirect;
-            } else {
+              } else {
                 alert(data.message || "Saved!");
-            }
-        })
-        .catch(() => alert("Error saving clip."));
-    });
-</script>
-
-</body>
+              }
+            })
+            .catch(() => alert("Error saving clip."));
+        });
+    </script>
+  </body>
 </html>
