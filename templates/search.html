@@ -1,209 +1,382 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scene-Search</title>
 
-    <link rel="icon" type="image/png" href="/static/scene-search.png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/scene-search.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Indic Transliteration -->
     <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.3.0/sanscript.min.js"></script>
 
     <style>
-        :root {
-            --main-bg: #181a20;
-            --accent: #c08401;
-            --accent2: #2e2a23;
-            --text-main: #f5f3ee;
-            --text-muted: #b8b6b0;
-        }
+      :root {
+        --main-bg: #181a20;
+        --accent: #c08401;
+        --accent2: #2e2a23;
+        --text-main: #f5f3ee;
+        --text-muted: #b8b6b0;
+      }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(120deg, var(--main-bg) 60%, var(--accent2) 100%);
-            color: var(--text-main);
-            font-family: 'Roboto', sans-serif;
-        }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(
+          120deg,
+          var(--main-bg) 60%,
+          var(--accent2) 100%
+        );
+        color: var(--text-main);
+        font-family: "Roboto", sans-serif;
+      }
 
-        .header {
-            background: var(--main-bg);
-            padding: 1.5em 2em;
-            display: flex;
-            align-items: center;
-            gap: 2em;
-            box-shadow: 0 2px 16px #000a;
-        }
+      .header {
+        background: var(--main-bg);
+        padding: 1.5em 2em;
+        display: flex;
+        align-items: center;
+        gap: 2em;
+        box-shadow: 0 2px 16px #000a;
+      }
 
-        .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2rem;
-            color: var(--accent);
-            font-weight: 900;
-        }
-        .logo a {
-            color: inherit;
-            text-decoration: none;
-        }
+      .logo {
+        font-family: "Montserrat", sans-serif;
+        font-size: 2rem;
+        color: var(--accent);
+        font-weight: 900;
+      }
+      .logo a {
+        color: inherit;
+        text-decoration: none;
+      }
 
-        .search-bar {
-            flex: 1;
-            display: flex;
-            gap: 0.6em;
-        }
+      .search-bar {
+        flex: 1;
+        display: flex;
+        gap: 0.6em;
+      }
 
-        .search-bar input {
-            flex: 1;
-            padding: 0.8em 1.2em;
-            border-radius: 32px;
-            border: none;
-            background: var(--accent2);
-            color: var(--text-main);
-            font-size: 1.1rem;
-            outline: none;
-            font-family: 'Noto Sans Telugu', 'Roboto', sans-serif;
-        }
+      .search-bar input {
+        flex: 1;
+        padding: 0.8em 1.2em;
+        border-radius: 32px;
+        border: none;
+        background: var(--accent2);
+        color: var(--text-main);
+        font-size: 1.1rem;
+        outline: none;
+        font-family: "Noto Sans Telugu", "Roboto", sans-serif;
+      }
 
-        #langToggle {
-            padding: 0.7em 1.4em;
-            border-radius: 24px;
-            border: none;
-            background: var(--accent);
-            color: white;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-        }
+      #langToggle {
+        padding: 0.7em 1.4em;
+        border-radius: 24px;
+        border: none;
+        background: var(--accent);
+        color: white;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+      }
 
-        #langToggle.active {
-            background: #2fa36a;
-        }
+      #langToggle.active {
+        background: #2fa36a;
+      }
 
-        .clip-list {
-            max-width: 1000px;
-            margin: 2em auto;
-            background: rgba(24,26,32,0.85);
-            border-radius: 18px;
-            box-shadow: 0 4px 32px #000a;
-            padding: 2em;
-        }
+      .clip-list {
+        max-width: 1000px;
+        margin: 2em auto;
+        background: rgba(24, 26, 32, 0.85);
+        border-radius: 18px;
+        box-shadow: 0 4px 32px #000a;
+        padding: 2em;
+      }
 
-        .clip-item {
-            display: flex;
-            gap: 2em;
-            padding: 1.5em 0;
-            border-bottom: 1px solid rgba(192,132,1,0.08);
-        }
+      .clip-item {
+        display: flex;
+        gap: 2em;
+        padding: 1.5em 0;
+        border-bottom: 1px solid rgba(192, 132, 1, 0.08);
+        position: relative;
+      }
 
-        .clip-item:last-child {
-            border-bottom: none;
-        }
+      .clip-item:last-child {
+        border-bottom: none;
+      }
 
-        .clip-thumb {
-            width: 160px;
-            height: 90px;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 2px 12px #0007;
-        }
+      .clip-thumb-container {
+        position: relative;
+      }
 
-        .clip-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.3rem;
-            color: var(--accent);
-            font-weight: 700;
-        }
+      .file-type-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: var(--accent);
+        color: white;
+        padding: 0.3em 0.8em;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        z-index: 10;
+      }
 
-        .clip-meta {
-            color: var(--text-muted);
-            margin: 0.4em 0;
-        }
+      .clip-thumb {
+        width: 160px;
+        height: 90px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 2px 12px #0007;
+      }
 
-        .clip-desc {
-            margin-bottom: 0.6em;
-        }
+      .clip-title {
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.3rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
 
-        .clip-action {
-            background: linear-gradient(90deg, var(--accent), #a06c00);
-            border: none;
-            color: white;
-            padding: 0.6em 1.5em;
-            border-radius: 32px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-        }
+      .clip-meta {
+        color: var(--text-muted);
+        margin: 0.4em 0;
+      }
+
+      .clip-desc {
+        margin-bottom: 0.6em;
+      }
+
+      .clip-action {
+        background: linear-gradient(90deg, var(--accent), #a06c00);
+        border: none;
+        color: white;
+        padding: 0.6em 1.5em;
+        border-radius: 32px;
+        cursor: pointer;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        margin-right: 0.5em;
+      }
+
+      .clip-action.delete {
+        background: linear-gradient(90deg, #e74c3c, #c0392b);
+      }
+
+      .clip-action:hover {
+        opacity: 0.9;
+      }
+
+      .tags {
+        display: flex;
+        gap: 0.5em;
+        flex-wrap: wrap;
+        margin: 0.6em 0;
+      }
+
+      .tag {
+        background: rgba(192, 132, 1, 0.15);
+        color: var(--accent);
+        padding: 0.35em 0.6em 0.35em 0.8em;
+        border-radius: 18px;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="header">
+      <div class="logo"><a href="{{ url_for('choice') }}">SCENE SEARCH</a></div>
 
-<div class="header">
-    <div class="logo"><a href="{{ url_for('home') }}">SCENE SEARCH</a></div>
-
-    <div class="search-bar">
-        <input id="searchInput" type="text" placeholder="Search video clips..." />
+      <div class="search-bar">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search video clips..."
+        />
         <button id="langToggle">EN → తెలుగు</button>
+      </div>
     </div>
-</div>
 
-<div class="clip-list" id="clipList">
-    {% if clips %}
-        {% for clip in clips %}
-        <div class="clip-item">
-            <img class="clip-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80">
-            <div>
-                <div class="clip-title">{{ clip.title }}</div>
-                <div class="clip-meta">Saved: {{ clip.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-                <div class="clip-desc">{{ clip.description }}</div>
-                <div class="clip-meta">Tags: {{ clip.tags }}</div>
-                <button class="clip-action">Preview</button>
-            </div>
+    <div class="clip-list" id="clipList">
+      {% if clips %} {% for clip in clips %}
+      <div class="clip-item">
+        <div class="clip-thumb-container">
+          <img
+            class="clip-thumb"
+            src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
+          />
+          <span class="file-type-badge">{{ clip.file_type }}</span>
         </div>
-        {% endfor %}
-    {% else %}
-        <div style="color: #b8b6b0; text-align: center;">No video clips found.</div>
-    {% endif %}
-</div>
+        <div>
+          <div class="clip-title">{{ clip.title }}</div>
+          <div class="clip-meta">
+            Saved: {{ clip.timestamp.strftime('%Y-%m-%d %H:%M') }}
+          </div>
+          <div class="clip-desc">{{ clip.description }}</div>
+          <div class="tags">
+            {% if clip.tags %} {% for tag in clip.tags.split(',') %}
+            <span class="tag">{{ tag.strip() }}</span>
+            {% endfor %} {% endif %}
+          </div>
+          <button class="clip-action">Preview</button>
+          <button
+            class="clip-action delete"
+            onclick="deleteClip('{{ clip.id }}')"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div style="color: #b8b6b0; text-align: center">No items found.</div>
+      {% endif %}
+    </div>
 
-<script>
-    const input = document.getElementById("searchInput");
-    const toggle = document.getElementById("langToggle");
+    <script>
+      const input = document.getElementById("searchInput");
+      const toggle = document.getElementById("langToggle");
 
-    let teluguEnabled = false;
+      let teluguEnabled = false;
 
-    toggle.addEventListener("click", () => {
+      function deleteClip(clipId) {
+        if (
+          !confirm(
+            "Are you sure you want to delete this item? This action cannot be undone.",
+          )
+        ) {
+          return;
+        }
+
+        fetch(`/delete/${clipId}`, {
+          method: "POST",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.redirect) {
+              window.location.href = data.redirect;
+            } else {
+              alert(data.message || "Deleted!");
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            alert("Error deleting item.");
+          });
+      }
+
+      toggle.addEventListener("click", () => {
         teluguEnabled = !teluguEnabled;
         toggle.classList.toggle("active", teluguEnabled);
-    });
+      });
 
-    input.addEventListener("keydown", (e) => {
+      input.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+          const query = input.value.trim();
+          if (query) {
+            performSemanticSearch(query);
+          }
+        }
+      });
+
+      function performSemanticSearch(query) {
+        fetch("/api/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: query }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.results) {
+              displaySearchResults(data.results);
+            } else {
+              displaySearchResults([]);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            alert("Search failed");
+          });
+      }
+
+      function displaySearchResults(results) {
+        const clipList = document.getElementById("clipList");
+
+        if (results.length === 0) {
+          clipList.innerHTML =
+            '<div style="color: #b8b6b0; text-align: center">No results found.</div>';
+          return;
+        }
+
+        let html = "";
+        results.forEach((item) => {
+          const score = (item.score * 100).toFixed(1);
+          html += `
+            <div class="clip-item">
+              <div class="clip-thumb-container">
+                <img
+                  class="clip-thumb"
+                  src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80"
+                />
+                <span class="file-type-badge">${item.file_type}</span>
+              </div>
+              <div>
+                <div class="clip-title">${item.title}</div>
+                <div class="clip-meta">
+                  Saved: ${new Date(item.timestamp).toLocaleString()} | Match: ${score}%
+                </div>
+                <div class="clip-desc">${item.description}</div>
+                <div class="tags">
+                  ${
+                    item.tags
+                      ? item.tags
+                          .split(",")
+                          .map(
+                            (tag) => `<span class="tag">${tag.trim()}</span>`,
+                          )
+                          .join("")
+                      : ""
+                  }
+                </div>
+                <button class="clip-action">Preview</button>
+                <button
+                  class="clip-action delete"
+                  onclick="deleteClip('${item.id}')"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        clipList.innerHTML = html;
+      }
+
+      input.addEventListener("keydown", (e) => {
         if (!teluguEnabled) return;
 
         // Only transliterate on SPACE — NOT Enter
         if (e.key === " ") {
-            const words = input.value.split(/\s+/);
-            const lastIndex = words.length - 1;
-            const lastWord = words[lastIndex];
+          const words = input.value.split(/\s+/);
+          const lastIndex = words.length - 1;
+          const lastWord = words[lastIndex];
 
-            if (/^[a-zA-Z]+$/.test(lastWord)) {
-                words[lastIndex] = Sanscript.t(lastWord, "itrans", "telugu");
-                input.value = words.join(" ");
-            }
+          if (/^[a-zA-Z]+$/.test(lastWord)) {
+            words[lastIndex] = Sanscript.t(lastWord, "itrans", "telugu");
+            input.value = words.join(" ");
+          }
         }
-    });
-
-    // ENTER = SEARCH
-    input.addEventListener("keyup", (e) => {
-        if (e.key === "Enter") {
-            const query = input.value.trim();
-            console.log("SEARCH:", query);
-            // Hook your actual search logic here
-        }
-    });
-</script>
-
-</body>
+      });
+    </script>
+  </body>
 </html>

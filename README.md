@@ -8,29 +8,16 @@
 - Bilingual search engine for post-production footage.
 - Indexes footage using transcripts, supports natural language queries, returns clips with timestamps and relevance ranking.
 
+### Problems yet to fix
+- Chunking and summarizing the chunks is too slow
+
 ### How does scene-search work?
-```text
-scene-search/
-├── static/
-│   ├── scene-search.png
-│   └── setup.md
-│   ├── scene-search.png
-├── templates/
-│   ├── main.py
-│   └── utils.py
-├── uploads/
-│   └── test_main.py
-│   └── setup.md
-├── utils/
-│   ├── audio.py
-│   └── whisper.py
-└── LICENSE
-```
+`utils` has **three** main modules, `audio_conversion`, `audio_transcription`, `transcription_summarizer`.
 
 <h3> How to Run? </h3>
 1. Make sure you are in the root folder. <br> <br>
 <pre>cd scene-search</pre>
-2. Make sure you have all your dependencies installed. <br> <br>
+1. Make sure you have all your dependencies installed. <br> <br>
 <pre>pip install -r requirements.txt</pre>
-3. To run the app with the database, use the following command. <br> <br>
+1. To run the app with the database, use the following command. <br> <br>
 <pre>python app.py</pre>

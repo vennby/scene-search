@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scene-Search · Add to Archive</title>
+
+    <link rel="icon" type="image/png" href="/static/scene-search.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ================= GLOBAL ================= */
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      :root {
+        --bg-main: #181a20;
+        --bg-deep: #0f1116;
+        --gold: #c08401;
+        --gold-soft: rgba(192, 132, 1, 0.35);
+        --gold-glow: rgba(192, 132, 1, 0.65);
+        --text-main: #f5f3ee;
+        --text-muted: #b8b6b0;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: radial-gradient(circle at top, #1f222b, var(--bg-main));
+        color: var(--text-main);
+      }
+
+      /* ================= CINEMATIC BARS ================= */
+      .cinematic-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: linear-gradient(to bottom, #000, transparent);
+        z-index: 50;
+        pointer-events: none;
+      }
+
+      .cinematic-bar.bottom {
+        bottom: 0;
+        transform: rotate(180deg);
+      }
+
+      /* ================= FILM GRAIN ================= */
+      .film-grain {
+        position: fixed;
+        inset: 0;
+        background: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+        opacity: 0.14;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      /* ================= HERO ================= */
+      .hero {
+        height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        position: relative;
+      }
+
+      /* ================= CARD ================= */
+      .choice-card {
+        padding: 3.8rem 4.2rem;
+        border-radius: 28px;
+        backdrop-filter: blur(16px);
+        background: linear-gradient(
+          145deg,
+          rgba(24, 26, 32, 0.78),
+          rgba(15, 17, 22, 0.88)
+        );
+        border: 1px solid rgba(192, 132, 1, 0.15);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.02),
+          0 40px 100px rgba(0, 0, 0, 0.9);
+        animation: rise 1.3s cubic-bezier(0.77, 0, 0.18, 1) both;
+        max-width: 720px;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ================= TEXT ================= */
+      .tagline {
+        font-family: "Montserrat", sans-serif;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.1rem;
+      }
+
+      .title {
+        font-family: "Montserrat", sans-serif;
+        font-size: clamp(2.6rem, 6vw, 4rem);
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        color: var(--gold);
+        margin-bottom: 1.4rem;
+        text-shadow:
+          0 0 20px var(--gold-soft),
+          0 20px 60px rgba(0, 0, 0, 0.8);
+      }
+
+      .subtitle {
+        font-size: 1.15rem;
+        color: var(--text-main);
+        max-width: 520px;
+        margin: 0 auto 3rem;
+        line-height: 1.6;
+      }
+
+      /* ================= OPTIONS ================= */
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2.2rem;
+      }
+
+      .option {
+        padding: 2.2rem 2rem;
+        border-radius: 22px;
+        background: rgba(24, 26, 32, 0.65);
+        border: 1px solid rgba(192, 132, 1, 0.12);
+        transition: all 0.35s ease;
+        cursor: pointer;
+      }
+
+      .option:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+        border-color: rgba(192, 132, 1, 0.4);
+      }
+
+      .option h3 {
+        font-family: "Montserrat", sans-serif;
+        color: var(--gold);
+        letter-spacing: 0.12em;
+        margin-bottom: 0.6rem;
+      }
+
+      .option p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      /* ================= CTA ================= */
+      .option button {
+        margin-top: 1.6rem;
+        padding: 0.75rem 2.2rem;
+        border-radius: 999px;
+        border: none;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        background: linear-gradient(135deg, var(--gold), #9c6a00);
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 10px 35px var(--gold-soft);
+        transition: all 0.3s ease;
+      }
+
+      .option button:hover {
+        transform: scale(1.06);
+        box-shadow: 0 20px 60px var(--gold-glow);
+      }
+
+      /* ================= RESPONSIVE ================= */
+      @media (max-width: 800px) {
+        .choice-card {
+          padding: 2.6rem 2.2rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="cinematic-bar"></div>
+    <div class="cinematic-bar bottom"></div>
+    <div class="film-grain"></div>
+
+    <section class="hero">
+      <div class="choice-card">
+        <h1 class="title">ADD TO ARCHIVE</h1>
+
+        <div class="options">
+          <div class="option">
+            <h3>BY TRANSCRIPT</h3>
+            <p>Upload your text file or PDF and let us analyze it for you.</p>
+            <form
+              action="{{ url_for('text') }}"
+              method="get"
+              style="margin-top: 1.6rem"
+            >
+              <button type="submit">Upload Transcript</button>
+            </form>
+          </div>
+
+          <div class="option">
+            <h3>BY VIDEO</h3>
+            <p>Upload your footage and let us analyze it for you.</p>
+            <form
+              action="{{ url_for('upload') }}"
+              method="get"
+              style="margin-top: 1.6rem"
+            >
+              <button type="submit">Upload Video</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

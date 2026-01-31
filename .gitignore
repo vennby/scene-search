@@ -1,5 +1,8 @@
 .venv/
+uploads/
 instance/
+chroma_db/
+thumbnails/
 __pycache__/
 
 .env

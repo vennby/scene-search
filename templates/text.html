@@ -123,13 +123,21 @@
         align-items: flex-start;
       }
 
-      .thumb {
+      .document-preview {
         width: 260px;
-        height: 150px;
+        height: 260px;
         background: #000;
         border-radius: 14px;
-        object-fit: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         box-shadow: 0 4px 20px #000a;
+      }
+
+      .document-icon {
+        width: 100px;
+        height: 100px;
+        opacity: 0.6;
       }
 
       .result-content {
@@ -209,12 +217,16 @@
     </div>
 
     <div class="container">
-      <h1>Scene Summary</h1>
+      <h1>Text & PDF Analysis</h1>
 
       <div id="uploadView">
         <div class="upload-box">
-          <label class="upload-label" for="videoFile">Video Analysis</label>
-          <input type="file" id="videoFile" accept="video/*" />
+          <label class="upload-label" for="textFile">Upload Text or PDF</label>
+          <input
+            type="file"
+            id="textFile"
+            accept=".txt,.pdf,text/plain,application/pdf"
+          />
           <div class="file-name" id="fileName"></div>
         </div>
 
@@ -227,7 +239,7 @@
 
       <div id="resultView" style="display: none">
         <div class="result">
-          <video class="thumb" id="videoPreview" controls></video>
+          <div class="document-preview" id="documentPreview"></div>
           <div class="result-content">
             <form id="saveForm" enctype="multipart/form-data">
               <input
@@ -259,7 +271,7 @@
 
               <div class="actions">
                 <button class="btn save-btn" id="saveBtn" type="submit">
-                  Save Clip
+                  Save Document
                 </button>
               </div>
             </form>
@@ -268,12 +280,12 @@
       </div>
     </div>
     <script>
-      const fileInput = document.getElementById("videoFile");
+      const fileInput = document.getElementById("textFile");
       const fileNameDisplay = document.getElementById("fileName");
       const generateBtn = document.getElementById("generateBtn");
       const uploadView = document.getElementById("uploadView");
       const resultView = document.getElementById("resultView");
-      const videoPreview = document.getElementById("videoPreview");
+      const documentPreview = document.getElementById("documentPreview");
       const titleInput = document.getElementById("titleInput");
       const summaryInput = document.getElementById("summaryInput");
       const saveBtn = document.getElementById("saveBtn");
@@ -281,35 +293,35 @@
       const tagContainer = document.getElementById("tagContainer");
       const saveForm = document.getElementById("saveForm");
 
-      let uploadedVideoFile = null; // 🔥 persist video across steps
+      let uploadedFile = null; // 🔥 persist file across steps
 
       /* ---------------- FILE SELECT ---------------- */
 
       fileInput.addEventListener("change", () => {
         if (!fileInput.files.length) return;
 
-        uploadedVideoFile = fileInput.files[0];
-        fileNameDisplay.textContent = `Selected: ${uploadedVideoFile.name}`;
+        uploadedFile = fileInput.files[0];
+        fileNameDisplay.textContent = `Selected: ${uploadedFile.name}`;
         generateBtn.disabled = false;
       });
 
       /* ---------------- ANALYZE ---------------- */
 
       generateBtn.addEventListener("click", async () => {
-        if (!uploadedVideoFile) return;
+        if (!uploadedFile) return;
 
         generateBtn.disabled = true;
         generateBtn.textContent = "Analyzing…";
 
-        // Immediate preview
-        videoPreview.src = URL.createObjectURL(uploadedVideoFile);
-        videoPreview.load();
+        // Immediate preview - show document icon
+        const icon = `<svg class="document-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`;
+        documentPreview.innerHTML = icon;
 
         const formData = new FormData();
-        formData.append("video", uploadedVideoFile);
+        formData.append("file", uploadedFile);
 
         try {
-          const res = await fetch("/analyze", {
+          const res = await fetch("/text/analyze", {
             method: "POST",
             body: formData,
           });
@@ -333,7 +345,7 @@
           saveBtn.style.display = "inline-block";
         } catch (err) {
           console.error(err);
-          alert("Failed to analyze video.");
+          alert("Failed to analyze file.");
         } finally {
           generateBtn.disabled = false;
           generateBtn.textContent = "Generate Summary";
@@ -379,8 +391,8 @@
       saveForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        if (!uploadedVideoFile) {
-          alert("Video missing.");
+        if (!uploadedFile) {
+          alert("File missing.");
           return;
         }
 
@@ -388,11 +400,11 @@
 
         const formData = new FormData(saveForm);
 
-        // 🔥 CRITICAL: send video again
-        formData.append("video", uploadedVideoFile);
+        // 🔥 CRITICAL: send file again
+        formData.append("file", uploadedFile);
 
         try {
-          const res = await fetch("/upload", {
+          const res = await fetch("/text/upload", {
             method: "POST",
             body: formData,
           });
@@ -406,7 +418,7 @@
           }
         } catch (err) {
           console.error(err);
-          alert("Error saving clip.");
+          alert("Error saving document.");
         }
       });
     </script>
