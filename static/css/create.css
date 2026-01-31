@@ -1,0 +1,260 @@
+/* ======================= CREATE PAGE SPECIFIC STYLES ======================= */
+
+.search-input-group {
+  display: flex;
+  gap: 0.8em;
+  margin-bottom: 1em;
+}
+
+.search-input-group input {
+  flex: 1;
+  padding: 0.9em 1.2em;
+  border-radius: 32px;
+  border: none;
+  background: var(--accent2);
+  color: var(--text-main);
+  font-size: 1.1rem;
+  outline: none;
+  font-family: "Roboto", sans-serif;
+}
+
+.search-input-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-button {
+  padding: 0.9em 2em;
+  border-radius: 32px;
+  border: none;
+  background: linear-gradient(90deg, var(--accent), #a06c00);
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.search-button:hover {
+  opacity: 0.9;
+}
+
+.search-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1em;
+  display: none;
+}
+
+.loading-indicator.show {
+  display: block;
+}
+
+/* ======================= TILES CONTAINER ======================= */
+.tiles-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 2em;
+  min-height: 200px;
+}
+
+.clip-tile {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: grab;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 12px #0007;
+  touch-action: none;
+}
+
+.clip-tile:active {
+  cursor: grabbing;
+}
+
+.clip-tile.dragging {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+.clip-tile:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 24px rgba(192, 132, 1, 0.3);
+}
+
+.clip-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clip-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.8em;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.clip-tile:hover .clip-overlay {
+  opacity: 1;
+}
+
+.clip-title-overlay {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 0.4em;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.clip-tags-overlay {
+  display: flex;
+  gap: 0.4em;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.tag-small {
+  background: rgba(192, 132, 1, 0.3);
+  color: var(--accent);
+  padding: 0.2em 0.5em;
+  border-radius: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.similarity-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(192, 132, 1, 0.9);
+  color: white;
+  padding: 0.4em 0.8em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+.remove-button {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(231, 76, 60, 0.8);
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: background 0.3s;
+  z-index: 10;
+}
+
+.clip-tile:hover .remove-button {
+  display: flex;
+}
+
+.remove-button:hover {
+  background: rgba(192, 0, 0, 0.9);
+}
+
+/* ======================= BUTTONS & CONTROLS ======================= */
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3em 1em;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1em;
+  opacity: 0.5;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1em;
+  margin-top: 2em;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 1em;
+  border-radius: 32px;
+  border: none;
+  background: linear-gradient(90deg, var(--accent), #a06c00);
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 1em 2em;
+  border-radius: 32px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: rgba(192, 132, 1, 0.1);
+}
+
+.sequence-info {
+  background: rgba(192, 132, 1, 0.1);
+  border-left: 4px solid var(--accent);
+  padding: 1em;
+  border-radius: 8px;
+  margin-bottom: 1em;
+  font-size: 0.95rem;
+}
+
+.progress-counter {
+  color: var(--accent);
+  font-weight: 700;
+}

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Take - Scene-Search</title>
+    <link rel="stylesheet" href="/static/css/common.css" />
+    <link rel="stylesheet" href="/static/css/sequences.css" />
+    <style>
+      .form-group {
+        margin-bottom: 1.5em;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5em;
+        font-weight: 700;
+        color: #c08401;
+      }
+      .form-group input[type="text"],
+      .form-group input[type="file"] {
+        width: 100%;
+        padding: 0.8em;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(192, 132, 1, 0.3);
+        border-radius: 8px;
+        color: #f5f3ee;
+        font-size: 1em;
+      }
+      .form-group input[type="text"]:focus,
+      .form-group input[type="file"]:focus {
+        outline: none;
+        border-color: #c08401;
+      }
+      .search-btn {
+        padding: 0.8em 1.5em;
+        background: linear-gradient(135deg, #c08401, #d4a500);
+        color: #181a20;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 0.5em;
+      }
+      .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(192, 132, 1, 0.4);
+      }
+      #results {
+        margin-top: 1em;
+        border: 2px solid rgba(192, 132, 1, 0.2);
+        border-radius: 8px;
+        padding: 1em;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      #results label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.8em;
+        cursor: pointer;
+        color: #f5f3ee;
+        font-weight: normal;
+      }
+      #results input[type="radio"] {
+        margin-right: 0.5em;
+      }
+      .submit-btn {
+        padding: 1em 2em;
+        background: linear-gradient(135deg, #c08401, #d4a500);
+        color: #181a20;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 1.5em;
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(192, 132, 1, 0.4);
+      }
+    </style>
+    <script>
+      async function searchClips() {
+        const query = document.getElementById("searchInput").value.trim();
+        if (!query) return;
+        const res = await fetch("/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        const data = await res.json();
+        const results = data.results.filter((r) => r.type === "video");
+        let html = "";
+        for (const r of results) {
+          html += `<label><input type='radio' name='clip_id' value='${r.id}' />${r.title}</label>`;
+        }
+        document.getElementById("results").innerHTML =
+          html || "No results found.";
+      }
+
+      async function handleSubmit(e) {
+        e.preventDefault();
+        const clipId = document.querySelector(
+          'input[name="clip_id"]:checked',
+        )?.value;
+        const videoFile = document.getElementById("videoFile").files[0];
+
+        if (!clipId) {
+          alert("Please select a scene");
+          return;
+        }
+        if (!videoFile) {
+          alert("Please select a video file");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("clip_id", clipId);
+        formData.append("video", videoFile);
+
+        const button = document.querySelector(".submit-btn");
+        button.disabled = true;
+        button.textContent = "Uploading...";
+
+        try {
+          const res = await fetch("/upload-take", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            alert("Take uploaded successfully!");
+            window.location.href = "/takes";
+          } else {
+            alert("Error: " + (data.error || "Upload failed"));
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Upload failed");
+        } finally {
+          button.disabled = false;
+          button.textContent = "Upload Take";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("takeForm")
+          .addEventListener("submit", handleSubmit);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">
+        <a href="/">SCENE SEARCH</a>
+        <div class="logo-dropdown">
+          <a href="{{ url_for('home') }}" class="dropdown-item">Home</a>
+          <a href="{{ url_for('choice') }}" class="dropdown-item">Upload</a>
+          <a href="{{ url_for('view_sequences') }}" class="dropdown-item"
+            >Sequences</a
+          >
+          <a href="{{ url_for('view_takes') }}" class="dropdown-item">Takes</a>
+        </div>
+      </div>
+      <div class="header-nav">
+        <a href="{{ url_for('search') }}" class="nav-button secondary"
+          >Search</a
+        >
+        <a href="{{ url_for('upload_type') }}" class="nav-button secondary"
+          >Back</a
+        >
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="section">
+        <h2 class="section-title">Upload Alternative Take</h2>
+        <div style="max-width: 600px; margin: 0 auto">
+          <form id="takeForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="searchInput">Search Existing Scene:</label>
+              <div style="display: flex; gap: 1em">
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Enter keywords..."
+                  style="flex: 1"
+                />
+                <button
+                  type="button"
+                  onclick="searchClips()"
+                  class="search-btn"
+                >
+                  Search
+                </button>
+              </div>
+              <div id="results"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="videoFile">Select Video File:</label>
+              <input
+                type="file"
+                id="videoFile"
+                name="video"
+                accept="video/*"
+                required
+              />
+            </div>
+
+            <button type="submit" class="submit-btn">Upload Take</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

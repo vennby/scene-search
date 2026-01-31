@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scene-Search - My Sequences</title>
+    <link rel="icon" type="image/png" href="/static/scene-search.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/common.css" />
+    <link rel="stylesheet" href="/static/css/sequences.css" />
+  </head>
+
+  <body>
+    <div class="header">
+      <div class="logo">
+        <a href="{{ url_for('view_sequences') }}">SCENE SEARCH</a>
+        <div class="logo-dropdown">
+          <a href="{{ url_for('home') }}" class="dropdown-item">Home</a>
+          <a href="{{ url_for('choice') }}" class="dropdown-item">Upload</a>
+          <a href="{{ url_for('view_takes') }}" class="dropdown-item">Takes</a>
+        </div>
+      </div>
+      <div class="header-nav">
+        <a href="{{ url_for('create') }}" class="nav-button">Create Sequence</a>
+        <a href="{{ url_for('search') }}" class="nav-button secondary"
+          >Search</a
+        >
+        <a href="{{ url_for('choice') }}" class="nav-button secondary">Back</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="section">
+        <h2 class="section-title">My Sequences</h2>
+
+        {% if sequences %}
+        <div class="sequences-grid" id="sequencesGrid">
+          {% for sequence in sequences %}
+          <div class="sequence-card">
+            <div class="sequence-header">
+              <h3 class="sequence-title">{{ sequence.name }}</h3>
+              <span class="sequence-badge"
+                >{{ sequence.clip_count }} clips</span
+              >
+            </div>
+
+            {% if sequence.description %}
+            <div class="sequence-description">{{ sequence.description }}</div>
+            {% endif %}
+
+            <div class="sequence-meta">
+              <div class="meta-item">
+                <span class="meta-label">Created:</span>
+                <span>{{ sequence.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+              </div>
+            </div>
+
+            <div class="sequence-actions">
+              <button
+                class="btn btn-view"
+                onclick="viewSequence('{{ sequence.id }}')"
+              >
+                View Details
+              </button>
+              <button
+                class="btn btn-delete"
+                onclick="deleteSequence('{{ sequence.id }}')"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">🎬</div>
+          <p>No sequences created yet</p>
+          <a href="{{ url_for('create') }}" class="btn-create"
+            >Create Your First Sequence</a
+          >
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modalTitle">Sequence Details</h2>
+          <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+
+        <div id="modalBody">
+          <div
+            style="text-align: center; padding: 2em; color: var(--text-muted)"
+          >
+            Loading...
+          </div>
+        </div>
+
+        <div class="modal-close-actions">
+          <button class="modal-btn modal-btn-secondary" onclick="closeModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/js/dropdown.js"></script>
+    <script src="/static/js/sequences.js"></script>
+  </body>
+</html>

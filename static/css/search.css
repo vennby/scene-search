@@ -1,0 +1,140 @@
+/* ======================= SEARCH PAGE SPECIFIC STYLES ======================= */
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  gap: 0.6em;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.8em 1.2em;
+  border-radius: 32px;
+  border: none;
+  background: var(--accent2);
+  color: var(--text-main);
+  font-size: 1.1rem;
+  outline: none;
+  font-family: "Noto Sans Telugu", "Roboto", sans-serif;
+}
+
+#langToggle {
+  padding: 0.7em 1.4em;
+  border-radius: 24px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#langToggle.active {
+  background: #2fa36a;
+}
+
+/* ======================= CLIP LIST ======================= */
+.clip-list {
+  max-width: 1000px;
+  margin: 2em auto;
+  background: rgba(24, 26, 32, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #000a;
+  padding: 2em;
+}
+
+.clip-item {
+  display: flex;
+  gap: 2em;
+  padding: 1.5em 0;
+  border-bottom: 1px solid rgba(192, 132, 1, 0.08);
+  position: relative;
+}
+
+.clip-item:last-child {
+  border-bottom: none;
+}
+
+.clip-thumb-container {
+  position: relative;
+}
+
+.file-type-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--accent);
+  color: white;
+  padding: 0.3em 0.8em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 10;
+}
+
+.clip-thumb {
+  width: 160px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 12px #0007;
+}
+
+.clip-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.3rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.clip-meta {
+  color: var(--text-muted);
+  margin: 0.4em 0;
+}
+
+.clip-desc {
+  margin-bottom: 0.6em;
+}
+
+/* ======================= TAGS ======================= */
+.tags {
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  margin: 0.6em 0;
+}
+
+.tag {
+  background: rgba(192, 132, 1, 0.15);
+  color: var(--accent);
+  padding: 0.35em 0.6em 0.35em 0.8em;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ======================= BUTTONS ======================= */
+.clip-action {
+  background: linear-gradient(90deg, var(--accent), #a06c00);
+  border: none;
+  color: white;
+  padding: 0.6em 1.5em;
+  border-radius: 32px;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  margin-right: 0.5em;
+  transition: opacity 0.3s;
+}
+
+.clip-action.delete {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.clip-action:hover {
+  opacity: 0.9;
+}

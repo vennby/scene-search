@@ -241,8 +241,15 @@
           Find moments, moods, and meaning inside your footage instantly. Built
           for filmmakers who think visually.
         </p>
-        <a href="{{ url_for('search') }}" class="cta">Enter the Archive</a>
-        <a href="{{ url_for('choice') }}" class="cta">Add to the Archive</a>
+        <a href="{{ url_for('choice') }}" class="cta"
+          ><i>Add to the Archive</i></a
+        >
+        <a href="{{ url_for('search') }}" class="cta"
+          ><i>Enter the Archive</i></a
+        >
+        <a href="{{ url_for('create') }}" class="cta"
+          ><i>Create with the Archive</i></a
+        >
       </div>
     </section>
   </body>

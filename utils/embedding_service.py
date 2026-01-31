@@ -145,7 +145,7 @@ def semantic_search(query, k=20):
                 all_results.append({
                     "id": int(video_id),
                     "type": "video",
-                    "file_type": "VIDEO",
+                    "file_type": "video",
                     "title": metadata.get("title", ""),
                     "description": metadata.get("description", ""),
                     "tags": metadata.get("tags", ""),
@@ -172,7 +172,7 @@ def semantic_search(query, k=20):
                 all_results.append({
                     "id": int(doc_id),
                     "type": "document",
-                    "file_type": metadata.get("type", "text").upper(),
+                    "file_type": "document",
                     "title": metadata.get("title", ""),
                     "description": metadata.get("description", ""),
                     "tags": metadata.get("tags", ""),

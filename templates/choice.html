@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scene-Search · Add to Archive</title>
+    <title>Scene-Search</title>
 
     <link rel="icon" type="image/png" href="/static/scene-search.png" />
     <link
@@ -222,11 +222,7 @@
           <div class="option">
             <h3>BY VIDEO</h3>
             <p>Upload your footage and let us analyze it for you.</p>
-            <form
-              action="{{ url_for('upload') }}"
-              method="get"
-              style="margin-top: 1.6rem"
-            >
+            <form action="/upload-type" method="get" style="margin-top: 1.6rem">
               <button type="submit">Upload Video</button>
             </form>
           </div>

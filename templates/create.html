@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scene-Search - Create Sequence</title>
+    <link rel="icon" type="image/png" href="/static/scene-search.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/common.css" />
+    <link rel="stylesheet" href="/static/css/create.css" />
+  </head>
+
+  <body>
+    <div class="header">
+      <div class="logo">
+        <a href="{{ url_for('create') }}">SCENE SEARCH</a>
+        <div class="logo-dropdown">
+          <a href="{{ url_for('home') }}" class="dropdown-item">Home</a>
+          <a href="{{ url_for('choice') }}" class="dropdown-item">Upload</a>
+          <a href="{{ url_for('view_sequences') }}" class="dropdown-item"
+            >Sequences</a
+          >
+          <a href="{{ url_for('view_takes') }}" class="dropdown-item">Takes</a>
+        </div>
+      </div>
+      <div class="header-nav">
+        <a href="{{ url_for('view_sequences') }}" class="nav-button"
+          >My Sequences</a
+        >
+        <a href="{{ url_for('search') }}" class="nav-button secondary"
+          >Search</a
+        >
+        <a href="{{ url_for('choice') }}" class="nav-button secondary">Back</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Input Section -->
+      <div class="section">
+        <h2 class="section-title">Find Similar Scenes</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5em">
+          Describe the scene or clips you'd like to sequence together.
+        </p>
+        <div class="search-input-group">
+          <input
+            id="sceneQuery"
+            type="text"
+            placeholder="E.g., 'Action sequences with explosions' or 'Dialogue scenes in offices'..."
+          />
+          <button class="search-button" onclick="searchSimilarScenes()">
+            Search Scenes
+          </button>
+        </div>
+        <div class="loading-indicator" id="loadingIndicator">
+          <span>🔍 Searching for similar scenes...</span>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div class="section" id="resultsSection" style="display: none">
+        <h2 class="section-title">Scene Clips</h2>
+        <div class="sequence-info" id="sequenceInfo" style="display: none">
+          <span class="progress-counter" id="sequenceCount">0</span> clips
+          selected for sequencing
+        </div>
+
+        <div id="tilesContainer" class="tiles-container">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎬</div>
+            <p>Search for scenes to get started</p>
+          </div>
+        </div>
+
+        <div class="action-buttons" id="actionButtons" style="display: none">
+          <button class="btn-primary" onclick="saveSequence()">
+            Save Sequence
+          </button>
+          <button class="btn-secondary" onclick="clearSequence()">
+            Clear All
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/js/dropdown.js"></script>
+    <script src="/static/js/create.js"></script>
+  </body>
+</html>

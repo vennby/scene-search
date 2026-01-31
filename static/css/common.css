@@ -1,0 +1,171 @@
+/* ======================= THEME & VARIABLES ======================= */
+:root {
+  --main-bg: #181a20;
+  --accent: #c08401;
+  --accent2: #2e2a23;
+  --text-main: #f5f3ee;
+  --text-muted: #b8b6b0;
+}
+
+/* ======================= GLOBAL ======================= */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(120deg, var(--main-bg) 60%, var(--accent2) 100%);
+  color: var(--text-main);
+  font-family: "Roboto", sans-serif;
+}
+
+/* ======================= HEADER ======================= */
+.header {
+  background: var(--main-bg);
+  padding: 1.5em 2em;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  box-shadow: 0 2px 16px #000a;
+}
+
+/* ======================= LOGO & DROPDOWN ======================= */
+.logo {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2rem;
+  color: var(--accent);
+  font-weight: 900;
+  position: relative;
+}
+
+.logo a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.logo-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--main-bg);
+  border: 2px solid var(--accent);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  min-width: 180px;
+  box-shadow: 0 4px 16px #000a;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.logo:hover .logo-dropdown {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 0.65em 1em;
+  color: var(--text-main);
+  text-decoration: none;
+  display: block;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(192, 132, 1, 0.1);
+  cursor: pointer;
+  font-size: 0.98rem;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(192, 132, 1, 0.15);
+  color: var(--accent);
+}
+
+.dropdown-item.active {
+  background: rgba(192, 132, 1, 0.2);
+  color: var(--accent);
+  pointer-events: none;
+  font-weight: 700;
+}
+
+/* ======================= BUTTONS ======================= */
+.nav-button {
+  padding: 0.7em 1.4em;
+  border-radius: 24px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.3s;
+}
+
+.nav-button:hover {
+  opacity: 0.9;
+}
+
+.nav-button.secondary {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+/* ======================= LAYOUT ======================= */
+.header-nav {
+  display: flex;
+  gap: 1em;
+  margin-left: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2em auto;
+  padding: 0 2em;
+}
+
+.section {
+  background: rgba(24, 26, 32, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #000a;
+  padding: 2em;
+  margin-bottom: 2em;
+}
+
+.section-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.6rem;
+  color: var(--accent);
+  font-weight: 900;
+  margin-bottom: 1.5em;
+  margin-top: 0;
+}
+
+/* ======================= MEDIA QUERIES ======================= */
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .header-nav {
+    gap: 0.5em;
+  }
+
+  .search-input-group {
+    flex-direction: column;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}

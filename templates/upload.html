@@ -200,6 +200,115 @@
       .save-btn {
         display: none;
       }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--main-bg);
+        padding: 2em;
+        border-radius: 14px;
+        max-width: 600px;
+        width: 90%;
+        box-shadow: 0 4px 32px #000a;
+      }
+
+      .modal h2 {
+        color: var(--accent);
+        margin-top: 0;
+      }
+
+      .modal-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5em;
+        margin: 1.5em 0;
+      }
+
+      .option-box {
+        background: var(--accent2);
+        border: 2px solid rgba(192, 132, 1, 0.3);
+        padding: 1.5em;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+      }
+
+      .option-box:hover {
+        border-color: var(--accent);
+        background: rgba(192, 132, 1, 0.1);
+      }
+
+      .option-box h3 {
+        color: var(--accent);
+        margin: 0 0 0.5em 0;
+      }
+
+      .option-box p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.9em;
+      }
+
+      .form-group {
+        margin-bottom: 1.5em;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5em;
+        color: var(--text-main);
+        font-weight: 700;
+      }
+
+      .form-group select {
+        width: 100%;
+        padding: 0.8em;
+        background: var(--accent2);
+        border: 1px solid rgba(192, 132, 1, 0.3);
+        color: var(--text-main);
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 1em;
+        justify-content: flex-end;
+        margin-top: 2em;
+      }
+
+      .btn-secondary {
+        background: var(--text-muted);
+        color: white;
+      }
+
+      .close-modal {
+        cursor: pointer;
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-muted);
+        margin-bottom: 1em;
+      }
+
+      .close-modal:hover {
+        color: var(--accent);
+      }
     </style>
   </head>
 
@@ -267,6 +376,92 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal for choosing upload type -->
+    <div id="uploadTypeModal" class="modal">
+      <div class="modal-content">
+        <div class="close-modal" onclick="closeUploadTypeModal()">&times;</div>
+        <h2>How would you like to save this clip?</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5em">
+          Choose whether to create a new scene or add this clip as a take to an
+          existing scene.
+        </p>
+
+        <div class="modal-options">
+          <div class="option-box" onclick="selectUploadType('fresh')">
+            <h3>Fresh Clip</h3>
+            <p>Save as standalone clip</p>
+          </div>
+          <div class="option-box" onclick="selectUploadType('take')">
+            <h3>Add to Scene</h3>
+            <p>Group with existing takes</p>
+          </div>
+        </div>
+
+        <div id="takeOptions" style="display: none">
+          <div class="form-group">
+            <label for="sceneSelect">Select Scene or Create New:</label>
+            <select id="sceneSelect">
+              <option value="">-- Create New Scene --</option>
+            </select>
+          </div>
+          <div class="form-group" id="newSceneFields" style="display: none">
+            <label for="newSceneName">New Scene Name:</label>
+            <input
+              type="text"
+              id="newSceneName"
+              placeholder="e.g., Opening Shot"
+            />
+            <label for="newSceneDescription" style="margin-top: 1em"
+              >Description (optional):</label
+            >
+            <textarea
+              id="newSceneDescription"
+              placeholder="Describe this scene..."
+              style="
+                width: 100%;
+                padding: 0.8em;
+                background: var(--accent2);
+                border: 1px solid rgba(192, 132, 1, 0.3);
+                color: var(--text-main);
+                border-radius: 8px;
+                min-height: 80px;
+              "
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="takeNotes">Notes for this take (optional):</label>
+            <textarea
+              id="takeNotes"
+              placeholder="e.g., Good lighting, slight audio issue"
+              style="
+                width: 100%;
+                padding: 0.8em;
+                background: var(--accent2);
+                border: 1px solid rgba(192, 132, 1, 0.3);
+                color: var(--text-main);
+                border-radius: 8px;
+                min-height: 80px;
+              "
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeUploadTypeModal()">
+            Cancel
+          </button>
+          <button
+            class="btn"
+            id="confirmUploadBtn"
+            style="display: none"
+            onclick="confirmUploadType()"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
     <script>
       const fileInput = document.getElementById("videoFile");
       const fileNameDisplay = document.getElementById("fileName");
@@ -280,8 +475,15 @@
       const tagInput = document.getElementById("tagInput");
       const tagContainer = document.getElementById("tagContainer");
       const saveForm = document.getElementById("saveForm");
+      const uploadTypeModal = document.getElementById("uploadTypeModal");
+      const confirmUploadBtn = document.getElementById("confirmUploadBtn");
+      const sceneSelect = document.getElementById("sceneSelect");
+      const takeOptions = document.getElementById("takeOptions");
+      const newSceneFields = document.getElementById("newSceneFields");
 
       let uploadedVideoFile = null; // 🔥 persist video across steps
+      let selectedUploadType = null; // 'fresh' or 'take'
+      let existingClipId = null; // ID of saved clip before type selection
 
       /* ---------------- FILE SELECT ---------------- */
 
@@ -374,7 +576,7 @@
           .join(",");
       }
 
-      /* ---------------- SAVE ---------------- */
+      /* ---------------- SAVE - WITH UPLOAD TYPE SELECTION ------------ */
 
       saveForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -384,11 +586,10 @@
           return;
         }
 
+        // First, save the clip
         document.getElementById("tagsHidden").value = getTags();
 
         const formData = new FormData(saveForm);
-
-        // 🔥 CRITICAL: send video again
         formData.append("video", uploadedVideoFile);
 
         try {
@@ -399,14 +600,146 @@
 
           const data = await res.json();
 
-          if (data.redirect) {
-            window.location.href = data.redirect;
-          } else {
-            alert(data.message || "Saved!");
+          if (data.error) {
+            alert("Error saving clip: " + data.error);
+            return;
           }
+
+          existingClipId = data.clip_id;
+
+          // Now show the upload type modal
+          loadScenes();
+          uploadTypeModal.classList.add("active");
         } catch (err) {
           console.error(err);
           alert("Error saving clip.");
+        }
+      });
+
+      function selectUploadType(type) {
+        selectedUploadType = type;
+
+        if (type === "fresh") {
+          // Just close and redirect
+          window.location.href = "/search";
+        } else if (type === "take") {
+          takeOptions.style.display = "block";
+          confirmUploadBtn.style.display = "inline-block";
+        }
+      }
+
+      function closeUploadTypeModal() {
+        uploadTypeModal.classList.remove("active");
+        if (selectedUploadType === "fresh") {
+          // Already redirected
+        } else {
+          selectedUploadType = null;
+          takeOptions.style.display = "none";
+          confirmUploadBtn.style.display = "none";
+          newSceneFields.style.display = "none";
+        }
+      }
+
+      sceneSelect.addEventListener("change", () => {
+        if (sceneSelect.value === "") {
+          newSceneFields.style.display = "block";
+        } else {
+          newSceneFields.style.display = "none";
+        }
+      });
+
+      async function confirmUploadType() {
+        let sceneId;
+
+        if (sceneSelect.value === "") {
+          // Create new scene
+          const sceneName = document
+            .getElementById("newSceneName")
+            .value.trim();
+          if (!sceneName) {
+            alert("Please enter a scene name");
+            return;
+          }
+
+          const newSceneData = {
+            name: sceneName,
+            description: document
+              .getElementById("newSceneDescription")
+              .value.trim(),
+            ranking_type: "automatic",
+          };
+
+          try {
+            const res = await fetch("/api/scene/create", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newSceneData),
+            });
+
+            if (!res.ok) throw new Error("Failed to create scene");
+
+            const sceneResp = await res.json();
+            sceneId = sceneResp.id;
+          } catch (err) {
+            console.error(err);
+            alert("Error creating scene: " + err.message);
+            return;
+          }
+        } else {
+          sceneId = parseInt(sceneSelect.value);
+        }
+
+        // Now add the clip as a take to the scene
+        const takeData = {
+          scene_id: sceneId,
+          video_clip_id: existingClipId,
+          notes: document.getElementById("takeNotes").value.trim(),
+        };
+
+        try {
+          const res = await fetch("/api/take/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(takeData),
+          });
+
+          if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || "Failed to create take");
+          }
+
+          // Success! Redirect to scenes page
+          window.location.href = "/scenes";
+        } catch (err) {
+          console.error(err);
+          alert("Error adding to scene: " + err.message);
+        }
+      }
+
+      async function loadScenes() {
+        try {
+          const res = await fetch("/api/scenes");
+          if (!res.ok) return;
+
+          const scenes = await res.json();
+          sceneSelect.innerHTML =
+            '<option value="">-- Create New Scene --</option>';
+
+          scenes.forEach((scene) => {
+            const option = document.createElement("option");
+            option.value = scene.id;
+            option.textContent = `${scene.name} (${scene.take_count} takes)`;
+            sceneSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // Close modal when clicking outside
+      window.addEventListener("click", (e) => {
+        if (e.target === uploadTypeModal) {
+          closeUploadTypeModal();
         }
       });
     </script>
