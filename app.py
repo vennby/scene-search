@@ -10,8 +10,8 @@ from utils.media.audio_transcription import transcribe_video
 from utils.media.extract_thumbnail import extract_thumbnail
 from utils.media.audio_conversion import mp4_to_mp3
 from utils.embedding_service import (
-    add_video_clip, add_text_document, delete_video_clip, 
-    delete_text_document, semantic_search, initialize_embeddings
+    add_or_update_video, add_or_update_document, delete_video, 
+    delete_document, semantic_search, initialize_all_embeddings
 )
 
 load_dotenv()
@@ -38,17 +38,46 @@ def choice():
 def text_upload():
     return render_template('text.html')
 
-@app.route('/search')
+@app.route('/search', methods=['GET', 'POST'])
 def search():
-    # Get all video clips
+    # Handle search API requests (POST)
+    if request.method == 'POST':
+        data = request.get_json()
+        query = data.get("query", "").strip()
+        
+        if not query:
+            return jsonify({"error": "Query is required"}), 400
+        
+        try:
+            search_data = semantic_search(query, k=20)
+            
+            # Add timestamps to results
+            results_with_timestamps = []
+            for result in search_data['results']:
+                if result['type'] == 'video':
+                    clip = VideoClip.query.get(result['id'])
+                    if clip:
+                        result['timestamp'] = clip.timestamp.isoformat()
+                        results_with_timestamps.append(result)
+                else:  # document
+                    doc = TextDocument.query.get(result['id'])
+                    if doc:
+                        result['timestamp'] = doc.timestamp.isoformat()
+                        results_with_timestamps.append(result)
+            
+            return jsonify({
+                "query": search_data["query"],
+                "total": len(results_with_timestamps),
+                "results": results_with_timestamps
+            })
+        except Exception as e:
+            print(f"Search error: {e}")
+            return jsonify({"error": f"Search failed: {str(e)}"}), 500
+    
+    # Handle initial page load (GET)
     video_clips = VideoClip.query.order_by(VideoClip.timestamp.desc()).all()
-    
-    # Get all text documents and add file_type attribute for compatibility
     text_docs = TextDocument.query.order_by(TextDocument.timestamp.desc()).all()
-    for doc in text_docs:
-        doc.file_type = doc.file_type  # Already stored in DB
     
-    # Combine and sort by timestamp
     all_items = video_clips + text_docs
     all_items.sort(key=lambda x: x.timestamp, reverse=True)
     
@@ -93,7 +122,7 @@ def upload():
 
     # Add to embedding database
     try:
-        add_video_clip(clip.id, title, description, tags)
+        add_or_update_video(clip.id, title, description, tags)
     except Exception as e:
         print(f"Error adding to embeddings: {e}")
 
@@ -184,7 +213,7 @@ def upload_text():
 
     # Add to embedding database
     try:
-        add_text_document(doc.id, title, description, tags, file_type)
+        add_or_update_document(doc.id, title, description, tags, file_type)
     except Exception as e:
         print(f"Error adding to embeddings: {e}")
 
@@ -216,7 +245,7 @@ def delete_clip(clip_id):
 
         # Delete from embeddings
         try:
-            delete_video_clip(clip_id)
+            delete_video(clip_id)
         except Exception as e:
             print(f"Error deleting from embeddings: {e}")
 
@@ -242,7 +271,7 @@ def delete_clip(clip_id):
 
         # Delete from embeddings
         try:
-            delete_text_document(clip_id)
+            delete_document(clip_id)
         except Exception as e:
             print(f"Error deleting from embeddings: {e}")
 
@@ -253,68 +282,17 @@ def delete_clip(clip_id):
     
     return jsonify({"error": "Item not found"}), 404
 
-@app.route("/api/search", methods=["POST"])
-def api_search():
-    """Semantic search API endpoint"""
-    data = request.get_json()
-    query = data.get("query", "").strip()
-    
-    if not query:
-        return jsonify({"error": "Query is required"}), 400
-    
-    try:
-        # Perform semantic search
-        search_results = semantic_search(query, k=20)
-        
-        # Fetch full objects from database
-        results_with_data = []
-        
-        for result in search_results:
-            if result["type"] == "video":
-                clip = VideoClip.query.get(result["id"])
-                if clip:
-                    results_with_data.append({
-                        "id": clip.id,
-                        "title": clip.title,
-                        "description": clip.description,
-                        "tags": clip.tags,
-                        "file_type": "video",
-                        "timestamp": clip.timestamp.isoformat(),
-                        "score": result["score"]
-                    })
-            else:  # text or pdf
-                doc = TextDocument.query.get(result["id"])
-                if doc:
-                    results_with_data.append({
-                        "id": doc.id,
-                        "title": doc.title,
-                        "description": doc.description,
-                        "tags": doc.tags,
-                        "file_type": doc.file_type,
-                        "timestamp": doc.timestamp.isoformat(),
-                        "score": result["score"]
-                    })
-        
-        return jsonify({
-            "query": query,
-            "count": len(results_with_data),
-            "results": results_with_data
-        })
-    except Exception as e:
-        print(f"Search error: {e}")
-        return jsonify({"error": f"Search failed: {str(e)}"}), 500
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         
-        # Initialize embeddings on startup
+        # Initialize embeddings for all content on startup
         try:
             video_clips = VideoClip.query.all()
             text_documents = TextDocument.query.all()
             
             if video_clips or text_documents:
-                initialize_embeddings(video_clips, text_documents)
+                initialize_all_embeddings(video_clips, text_documents)
         except Exception as e:
             print(f"Error initializing embeddings: {e}")
     
