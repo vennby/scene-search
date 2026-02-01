@@ -325,6 +325,9 @@
           <label class="upload-label" for="videoFile">Video Analysis</label>
           <input type="file" id="videoFile" accept="video/*" />
           <div class="file-name" id="fileName"></div>
+          <div style="color: #00d4ff; font-size: 12px; margin-top: 10px; font-style: italic;">
+            💡 Supports English and Telugu audio. Telugu will be transcribed and translated automatically.
+          </div>
         </div>
 
         <div class="actions">
@@ -528,6 +531,15 @@
 
           if (Array.isArray(data.tags)) {
             data.tags.forEach(addTag);
+          }
+
+          // Show language info if detected
+          if (data.language && data.language !== 'en') {
+            const langMap = { 'te': 'Telugu', 'hi': 'Hindi', 'en': 'English' };
+            const langLabel = document.createElement('div');
+            langLabel.style.cssText = 'background: #1a3a3a; padding: 10px; border-left: 3px solid #00d4ff; margin-bottom: 15px; border-radius: 4px; font-size: 12px; color: #00d4ff;';
+            langLabel.innerHTML = `<strong>🎙️ Audio Language:</strong> ${langMap[data.language]} - Transcribed and translated to English`;
+            resultView.insertBefore(langLabel, resultView.querySelector('.result'));
           }
 
           uploadView.style.display = "none";

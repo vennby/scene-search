@@ -58,7 +58,13 @@ function performSemanticSearch(query) {
       console.log("📦 Response data:", data);
       if (data.results) {
         console.log("✓ Found", data.results.length, "results");
-        displaySearchResults(data.results);
+        // Pass query info for transliteration display
+        displaySearchResults(data.results, {
+          query: data.query,
+          original_query: data.original_query,
+          script_type: data.script_type,
+          transliterated: data.transliterated
+        });
       } else {
         console.log("✗ No results field in response");
         displaySearchResults([]);
@@ -73,7 +79,7 @@ function performSemanticSearch(query) {
 /**
  * Display search results in the clip list
  */
-function displaySearchResults(results) {
+function displaySearchResults(results, queryInfo) {
   const clipList = document.getElementById("clipList");
 
   if (results.length === 0) {
@@ -83,6 +89,21 @@ function displaySearchResults(results) {
   }
 
   let html = "";
+  
+  // Show transliteration info if applicable
+  if (queryInfo && queryInfo.transliterated) {
+    html += `
+      <div style="background: #2a2a2a; padding: 15px; margin-bottom: 15px; border-left: 4px solid #00d4ff; border-radius: 4px;">
+        <div style="color: #00d4ff; font-size: 12px; font-weight: bold;">TRANSLITERATION INFO</div>
+        <div style="color: #b8b6b0; font-size: 13px; margin-top: 8px;">
+          <strong>Original:</strong> ${queryInfo.original_query}<br>
+          <strong>Script:</strong> ${queryInfo.script_type}<br>
+          <strong>Transliterated to:</strong> ${queryInfo.query}
+        </div>
+      </div>
+    `;
+  }
+  
   results.forEach((item) => {
     const score = (item.score * 100).toFixed(1);
     html += `

@@ -8,6 +8,10 @@ from io import BytesIO
 from utils.text.summarizer import summarize_text_file, summarize_pdf_file
 from utils.media.transcription_summarizer import analyze_transcript, load_transcript
 from utils.media.audio_transcription import transcribe_video
+from utils.media.telugu_transcription import (
+    transcribe_video_with_language, analyze_telugu_transcript, 
+    analyze_mixed_language_transcript, detect_audio_language
+)
 from utils.media.extract_thumbnail import extract_thumbnail
 from utils.media.audio_conversion import mp4_to_mp3
 from utils.media.video_analyzer import analyze_video_content
@@ -15,6 +19,7 @@ from utils.embedding_service import (
     add_or_update_video, add_or_update_document, delete_video, 
     delete_document, semantic_search, initialize_all_embeddings
 )
+from utils.transliteration import process_query
 
 load_dotenv()
 
@@ -55,7 +60,13 @@ def search():
             return jsonify({"error": "Query is required"}), 400
         
         try:
-            search_data = semantic_search(query, k=20)
+            # Process query - transliterate if Telugu/Hindi script detected
+            processed_query, original_query, script_type = process_query(query)
+            
+            # If transliterated, use processed query for search
+            search_query = processed_query if script_type != 'english' else query
+            
+            search_data = semantic_search(search_query, k=20)
             
             # Add timestamps and additional metadata to results
             results_with_timestamps = []
@@ -73,6 +84,9 @@ def search():
             
             return jsonify({
                 "query": search_data["query"],
+                "original_query": original_query,
+                "script_type": script_type,
+                "transliterated": script_type != 'english',
                 "total": len(results_with_timestamps),
                 "results": results_with_timestamps
             })
@@ -184,11 +198,21 @@ def analyze():
         video.save(video_path)
 
         try:
-            # Try to analyze via transcription first
-            mp3_path = mp4_to_mp3(video_path)
-            transcript_path = transcribe_video(mp3_path)
-            transcript = load_transcript(transcript_path)
-            result = analyze_transcript(transcript)
+            # Detect language in the video
+            print("🔍 Detecting audio language...")
+            detected_language = detect_audio_language(video_path)
+            
+            # Transcribe with language support
+            print(f"🎙 Transcribing in {detected_language}...")
+            transcript, lang_code, transcript_path = transcribe_video_with_language(video_path, detected_language)
+            
+            # Analyze transcript based on detected language
+            print(f"📝 Analyzing {lang_code} transcript...")
+            if lang_code == "te":
+                result = analyze_telugu_transcript(transcript, "te")
+            else:
+                result = analyze_mixed_language_transcript(transcript, lang_code)
+            
             return jsonify(result)
         except Exception as e:
             print(f"Transcription analysis failed: {e}")
