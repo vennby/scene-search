@@ -212,24 +212,6 @@ def delete_document(doc_id):
 # =============== INITIALIZATION =============== #
 
 def initialize_all_embeddings(video_clips, text_documents):
-    """Initialize embeddings for all existing database content"""
-    print(f"Initializing embeddings: {len(video_clips)} videos, {len(text_documents)} documents")
-    
-    for clip in video_clips:
-        try:
-            add_or_update_video(clip.id, clip.title, clip.description, clip.tags)
-        except Exception as e:
-            print(f"Error adding video {clip.id}: {e}")
-    
-    for doc in text_documents:
-        try:
-            add_or_update_document(doc.id, doc.title, doc.description, doc.tags, doc.file_type)
-        except Exception as e:
-            print(f"Error adding document {doc.id}: {e}")
-
-# =============== INITIALIZATION =============== #
-
-def initialize_all_embeddings(video_clips, text_documents):
     """
     Initialize embeddings for all existing content from the database.
     Call this once on app startup to sync vector DB with SQL DB.

@@ -1,4 +1,6 @@
 <!doctype html>
+<!-- stylelint-disable -->
+<!-- htmlhint "style-disabled": false -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -445,6 +447,23 @@
                 <div class="scene-info">
                   {{ take.description or 'No description' }}<br />
                   <strong>{{ take.clips|length }} takes available</strong>
+                  <button
+                    onclick="deleteTakes('{{ take.scene_name }}')"
+                    style="
+                      margin-top: 1em;
+                      padding: 0.6em 1.2em;
+                      background: rgba(244, 67, 54, 0.2);
+                      color: #f44336;
+                      border: 1px solid #f44336;
+                      border-radius: 6px;
+                      cursor: pointer;
+                      font-weight: 600;
+                      transition: all 0.2s;
+                      font-size: 0.85em;
+                    "
+                  >
+                    Delete Takes
+                  </button>
                 </div>
               </div>
 
@@ -463,6 +482,106 @@
                   <div>No clips available</div>
                   {% endif %}
                 </div>
+              </div>
+
+              <div
+                class="analysis-section"
+                id="analysis-section-{{ scene_idx }}"
+                style="
+                  display: none;
+                  margin-bottom: 2em;
+                  background: var(--main-bg);
+                  border-radius: 12px;
+                  padding: 1.5em;
+                  border: 2px solid rgba(192, 132, 1, 0.2);
+                "
+              >
+                <div
+                  class="analysis-title"
+                  style="
+                    font-weight: 700;
+                    color: var(--accent);
+                    margin-bottom: 1em;
+                  "
+                >
+                  AI Analysis
+                </div>
+                <div style="margin-bottom: 1em">
+                  <label
+                    for="criteria-{{ scene_idx }}"
+                    style="
+                      display: block;
+                      color: var(--text-muted);
+                      margin-bottom: 0.5em;
+                      font-size: 0.9em;
+                    "
+                    >What are you looking for? (optional)</label
+                  >
+                  <input
+                    type="text"
+                    id="criteria-{{ scene_idx }}"
+                    placeholder="e.g., 'surprised tone', 'excited', 'calm', 'bright lighting'"
+                    style="
+                      width: 100%;
+                      padding: 0.8em;
+                      background: rgba(255, 255, 255, 0.05);
+                      border: 1px solid rgba(192, 132, 1, 0.3);
+                      border-radius: 6px;
+                      color: var(--text-main);
+                      font-family: inherit;
+                      box-sizing: border-box;
+                    "
+                  />
+                </div>
+                <button
+                  onclick="analyzeScene({{ scene_idx }}, '{{ take.scene_name }}')"
+                  style="
+                    padding: 0.8em 1.5em;
+                    background: var(--accent);
+                    color: #000;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 700;
+                    transition: all 0.2s;
+                  "
+                >
+                  Analyze
+                </button>
+                <div
+                  id="analysis-results-{{ scene_idx }}"
+                  style="margin-top: 1em; display: none"
+                >
+                  <div
+                    id="analysis-loading-{{ scene_idx }}"
+                    style="text-align: center; color: var(--text-muted)"
+                  >
+                    Analyzing videos...
+                  </div>
+                  <div
+                    id="analysis-content-{{ scene_idx }}"
+                    style="display: none; margin-top: 1em"
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <button
+                  onclick="toggleAnalysis({{ scene_idx }})"
+                  style="
+                    padding: 0.6em 1.2em;
+                    background: rgba(192, 132, 1, 0.2);
+                    color: var(--accent);
+                    border: 1px solid var(--accent);
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    margin-bottom: 1em;
+                    transition: all 0.2s;
+                  "
+                >
+                  <span id="toggle-text-{{ scene_idx }}">Show AI Analysis</span>
+                </button>
               </div>
 
               <div>
@@ -558,7 +677,7 @@
         document.querySelectorAll('.takes-content').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.scene-item').forEach(el => el.classList.remove('active'));
         document.getElementById(`scene-${idx}`).style.display = 'block';
-        event.target.closest('.scene-item').classList.add('active');
+        document.querySelectorAll('.scene-item')[idx].classList.add('active');
       }
 
       function previewClip(sceneIdx, clipId) {
@@ -567,37 +686,6 @@
           videoPlayer.src = `/video/${clipId}`;
           videoPlayer.play();
         }
-      }
-
-      function setRating(sceneIdx, clipId, event) {
-        const rating = event.target.dataset.rating;
-        if (rating) {
-          const stars = event.target.parentElement.querySelectorAll('.star');
-          stars.forEach((star, idx) => {
-            star.classList.toggle('active', idx < rating);
-          });
-        }
-      }
-
-      function addTag(clipId) {
-        const input = document.getElementById(`tag-input-${clipId}`);
-        const tag = input.value.trim();
-        if (!tag) return;
-        const tagsDisplay = document.getElementById(`tags-${clipId}`);
-        const tagEl = document.createElement('span');
-        tagEl.className = 'tag';
-        tagEl.innerHTML = `${tag}<span class="tag-remove" onclick="removeTag(${clipId}, '${tag}')">×</span>`;
-        tagEl.onclick = (e) => removeTag(clipId, tag);
-        tagsDisplay.appendChild(tagEl);
-        input.value = '';
-      }
-
-      function removeTag(clipId, tag) {
-        event.stopPropagation();
-        const tagsDisplay = document.getElementById(`tags-${clipId}`);
-        tagsDisplay.querySelectorAll('.tag').forEach(el => {
-          if (el.textContent.includes(tag)) el.remove();
-        });
       }
 
       function deleteClip(clipId) {
@@ -647,6 +735,119 @@
             return closest;
           }
         }, { offset: Number.NEGATIVE_INFINITY }).element;
+      }
+
+      function toggleAnalysis(sceneIdx) {
+        const section = document.getElementById(`analysis-section-${sceneIdx}`);
+        const toggleText = document.getElementById(`toggle-text-${sceneIdx}`);
+        if (section.style.display === 'none' || section.style.display === '') {
+          section.style.display = 'block';
+          toggleText.textContent = 'Hide AI Analysis';
+        } else {
+          section.style.display = 'none';
+          toggleText.textContent = 'Show AI Analysis';
+        }
+      }
+
+      function analyzeScene(sceneIdx, sceneName) {
+        const criteriInput = document.getElementById(`criteria-${sceneIdx}`);
+        if (!criteriInput) {
+          alert('Criteria input not found');
+          return;
+        }
+
+        const criteria = criteriInput.value.trim();
+        const results = document.getElementById(`analysis-results-${sceneIdx}`);
+        const loading = document.getElementById(`analysis-loading-${sceneIdx}`);
+        const content = document.getElementById(`analysis-content-${sceneIdx}`);
+
+        if (!results || !loading || !content) {
+          alert('Analysis UI elements not found');
+          return;
+        }
+
+        results.style.display = 'block';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+
+        fetch('/analyze-takes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scene_name: sceneName,
+            criteria: criteria || null
+          })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) {
+            loading.textContent = 'Error: ' + data.error;
+            return;
+          }
+
+          loading.style.display = 'none';
+          content.style.display = 'block';
+
+          let html = '<div style="background: rgba(192, 132, 1, 0.1); border-left: 4px solid var(--accent); padding: 1em; border-radius: 6px; margin-bottom: 1em;">';
+
+          if (data.criteria_used) {
+            const escapedCriteria = data.criteria_used.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            html += '<div style="margin-bottom: 0.5em; color: var(--accent); font-weight: 600;">Criteria: <span style="color: var(--text-main);">"' + escapedCriteria + '"</span></div>';
+          }
+
+          if (data.best_take_id && sceneClips[sceneIdx] && sceneClips[sceneIdx].length > 0) {
+            const bestIndex = sceneClips[sceneIdx].findIndex(c => c.id == data.best_take_id);
+            if (bestIndex >= 0) {
+              html += '<div style="margin-bottom: 0.5em;"><strong style="color: var(--accent);">Recommended Take:</strong> Clip #' + (bestIndex + 1) + '</div>';
+              const bestReason = data.best_reason || 'Recommended';
+              const escapedReason = bestReason.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              html += '<div style="color: var(--text-muted); font-size: 0.9em;">' + escapedReason + '</div>';
+            }
+          }
+
+          html += '</div>';
+          html += '<div style="font-weight: 600; color: var(--accent); margin-bottom: 0.8em;">All Takes Analysis:</div>';
+
+          if (sceneClips[sceneIdx] && sceneClips[sceneIdx].length > 0) {
+            sceneClips[sceneIdx].forEach((clip, idx) => {
+              const score = data.scores[clip.id];
+              const reasoning = data.reasoning[clip.id];
+
+              if (score !== undefined && reasoning !== undefined) {
+                const scorePercent = Math.round(score * 100);
+                const escapedReason = reasoning.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                html += '<div style="margin-bottom: 1em; padding: 1em; background: rgba(255, 255, 255, 0.02); border-radius: 6px; border-left: 3px solid var(--accent);">';
+                html += '<div style="margin-bottom: 0.5em;"><strong>Take ' + (idx + 1) + ':</strong> ' + scorePercent + '% match</div>';
+                html += '<div style="color: var(--text-muted); font-size: 0.9em;">' + escapedReason + '</div>';
+                html += '</div>';
+              }
+            });
+          } else {
+            html += '<div style="color: var(--text-muted);">No clips available for analysis</div>';
+          }
+
+          content.innerHTML = html;
+        })
+        .catch(err => {
+          loading.textContent = 'Error: ' + (err.message || 'Unknown error');
+        });
+      }
+
+      function deleteTakes(sceneName) {
+        if (!confirm('Delete this takes group? The individual clips will be preserved and remain in your library.')) return;
+
+        fetch(`/delete-takes/${encodeURIComponent(sceneName)}`, { method: 'POST' })
+          .then(r => r.json())
+          .then(data => {
+            if (data.error) {
+              alert('Error: ' + data.error);
+            } else {
+              alert('Takes deleted successfully! All clips have been preserved.');
+              window.location.reload();
+            }
+          })
+          .catch(err => alert('Delete failed: ' + err.message));
       }
     </script>
   </body>

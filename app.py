@@ -10,6 +10,7 @@ from utils.media.transcription_summarizer import analyze_transcript, load_transc
 from utils.media.audio_transcription import transcribe_video
 from utils.media.extract_thumbnail import extract_thumbnail
 from utils.media.audio_conversion import mp4_to_mp3
+from utils.media.video_analyzer import analyze_video_content
 from utils.embedding_service import (
     add_or_update_video, add_or_update_document, delete_video, 
     delete_document, semantic_search, initialize_all_embeddings
@@ -182,13 +183,26 @@ def analyze():
         video_path = os.path.join(tmp, video.filename)
         video.save(video_path)
 
-        mp3_path = mp4_to_mp3(video_path)
-        transcript_path = transcribe_video(mp3_path)
-        transcript = load_transcript(transcript_path)
-
-        result = analyze_transcript(transcript)
-
-        return jsonify(result)
+        try:
+            # Try to analyze via transcription first
+            mp3_path = mp4_to_mp3(video_path)
+            transcript_path = transcribe_video(mp3_path)
+            transcript = load_transcript(transcript_path)
+            result = analyze_transcript(transcript)
+            return jsonify(result)
+        except Exception as e:
+            print(f"Transcription analysis failed: {e}")
+            print("Falling back to visual analysis...")
+            
+            try:
+                # Fall back to visual analysis if transcription fails
+                result = analyze_video_content(video_path)
+                return jsonify(result)
+            except Exception as e2:
+                print(f"Visual analysis also failed: {e2}")
+                return jsonify({
+                    "error": f"Analysis failed. Transcription error: {str(e)}. Visual analysis error: {str(e2)}"
+                }), 500
 
 @app.route("/text/analyze", methods=["POST"])
 def analyze_text():
@@ -632,6 +646,75 @@ def upload_take():
                 db.session.commit()
     return jsonify({'message': 'Take uploaded', 'redirect': '/takes'})
 
+@app.route('/analyze-takes', methods=['POST'])
+def analyze_takes_api():
+    """
+    Analyze takes using multimodal AI
+    Optionally accepts criteria for content-based analysis
+    """
+    from models import Takes, VideoClip
+    from utils.multimodal_analysis import analyze_takes, get_best_take_id
+    
+    data = request.get_json()
+    scene_name = data.get('scene_name')
+    criteria = data.get('criteria')  # Optional criteria like "surprised tone"
+    
+    if not scene_name:
+        return jsonify({'error': 'scene_name required'}), 400
+    
+    takes_obj = Takes.query.filter_by(scene_name=scene_name).first()
+    if not takes_obj:
+        return jsonify({'error': 'Scene not found'}), 404
+    
+    clip_ids = takes_obj.get_clips()
+    clips = [VideoClip.query.get(int(cid)) for cid in clip_ids if VideoClip.query.get(int(cid))]
+    
+    if not clips:
+        return jsonify({'error': 'No clips found'}), 404
+    
+    try:
+        scores, reasoning = analyze_takes(takes_obj, clips, criteria=criteria)
+        best_id, best_reason = get_best_take_id(scores, reasoning, clips)
+        
+        return jsonify({
+            'scores': scores,
+            'reasoning': reasoning,
+            'best_take_id': best_id,
+            'best_reason': best_reason,
+            'criteria_used': criteria
+        })
+    except Exception as e:
+        print(f"Analysis error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/select-best-take', methods=['POST'])
+def select_best_take():
+    """
+    Manually select the best take for a scene
+    """
+    from models import Takes
+    
+    data = request.get_json()
+    scene_name = data.get('scene_name')
+    clip_id = data.get('clip_id')
+    
+    if not scene_name or not clip_id:
+        return jsonify({'error': 'scene_name and clip_id required'}), 400
+    
+    takes_obj = Takes.query.filter_by(scene_name=scene_name).first()
+    if not takes_obj:
+        return jsonify({'error': 'Scene not found'}), 404
+    
+    try:
+        takes_obj.best_take_id = int(clip_id)
+        db.session.commit()
+        return jsonify({'message': 'Best take selected', 'clip_id': clip_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/takes')
 def view_takes():
     from models import Takes, VideoClip
@@ -642,6 +725,33 @@ def view_takes():
         clips = [VideoClip.query.get(int(cid)) for cid in clip_ids if VideoClip.query.get(int(cid))]
         takes_data.append({'scene_name': take.scene_name, 'description': take.description, 'clips': clips})
     return render_template('takes.html', takes=takes_data)
+
+
+@app.route('/delete-takes/<scene_name>', methods=['POST'])
+def delete_takes(scene_name):
+    """
+    Delete a takes group without deleting the underlying clips
+    Only the Takes record is deleted, clips remain in database
+    """
+    from models import Takes
+    
+    takes_obj = Takes.query.filter_by(scene_name=scene_name).first()
+    if not takes_obj:
+        return jsonify({'error': 'Takes not found'}), 404
+    
+    try:
+        db.session.delete(takes_obj)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Takes deleted successfully. All clips have been preserved.',
+            'redirect': '/takes'
+        })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting takes: {e}")
+        return jsonify({'error': f'Failed to delete takes: {str(e)}'}), 500
+
 
 if __name__ == '__main__':
     with app.app_context():
